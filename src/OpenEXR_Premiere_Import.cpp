@@ -39,24 +39,7 @@
 
 #include "OpenEXR_Premiere_Import.h"
 
-#include "OpenEXR_Premiere_IO.h"
-
-#include "OpenEXR_Premiere_Dialogs.h"
-#include "OpenEXR_UTF.h"
-
-#include "ImfHybridInputFile.h"
-#include <ImfRgbaFile.h>
-
-#include <ImfStandardAttributes.h>
-#include <ImfChannelList.h>
-#include <ImfVersion.h>
-#include <IexBaseExc.h>
-#include <IlmThread.h>
-#include <IlmThreadPool.h>
-#include <ImfArray.h>
-#include <ImfStdIO.h>
-
-#include <algorithm>
+#include <string>
 
 #include <stdio.h>
 #include <assert.h>
@@ -69,9 +52,6 @@
 
 
 using namespace std;
-using namespace Imf;
-using namespace Imath;
-using namespace IlmThread;
 
 
 static const csSDK_int32 OpenEXR_ID = 'oEXR';
@@ -98,14 +78,6 @@ typedef struct
 typedef struct
 {
 	char			magic[4];
-	csSDK_uint8		version;
-	csSDK_uint8		file_init;
-	csSDK_uint8		bypassConversion;
-	csSDK_uint8		reserved[9];
-	char			red[Name::SIZE];
-	char			green[Name::SIZE];
-	char			blue[Name::SIZE];
-	char			alpha[Name::SIZE];
 } ImporterPrefs, *ImporterPrefsPtr, **ImporterPrefsH;
 
 
@@ -181,8 +153,7 @@ SDKInit(
 static prMALError
 SDKShutdown()
 {
-	if( supportsThreads() )
-		setGlobalThreadCount(0);
+	// anything you want to close before Premiere quits
 	
 	return malNoError;
 }
@@ -236,25 +207,6 @@ SDKGetIndFormat(
 
 
 
-static bool
-isEXR(imFileRef SDKfileRef)
-{
-	try
-	{
-		IStreamPr instream(SDKfileRef);
-
-		char bytes[4];
-		instream.read(bytes, sizeof(bytes));
-
-		return isImfMagic(bytes);
-	}
-	catch(...)
-	{
-		return false;
-	}
-}
-
-
 prMALError 
 SDKOpenFile8(
 	imStdParms		*stdParms, 
@@ -297,7 +249,7 @@ SDKOpenFile8(
 									FILE_ATTRIBUTE_NORMAL,
 									NULL);
 							
-	if(fileRef == imInvalidHandleValue || !isEXR(fileRef))
+	if(fileRef == imInvalidHandleValue/* || !isEXR(fileRef)*/)
 	{
 		if(fileRef != imInvalidHandleValue)
 			CloseHandle(fileRef);
@@ -349,7 +301,7 @@ SDKOpenFile8(
 	CFRelease(filePathURL);
 	CFRelease(filePathCFSR);
 	
-	if(err || !isEXR(CAST_FILEREF(refNum)))
+	if(err)
 	{
 		if(!err)
 			FSCloseFork(refNum);
@@ -571,53 +523,6 @@ InitPrefs(ImporterPrefs *prefs)
 	memset(prefs, 0, sizeof(ImporterPrefs));
 
 	strcpy(prefs->magic, "oEXR");
-	prefs->version = 1;
-	prefs->file_init = FALSE;
-
-	strcpy(prefs->red, "R");
-	strcpy(prefs->green, "G");
-	strcpy(prefs->blue, "B");
-	strcpy(prefs->alpha, "A");
-}
-
-
-static void
-InitPrefs(
-	const HybridInputFile &in,
-	ImporterPrefs *prefs)
-{
-	if(prefs && prefs->file_init == FALSE)
-	{
-		const ChannelList &channels = in.channels(); 
-	
-		if(channels.findChannel("Y") && !channels.findChannel("R"))
-		{
-			strcpy(prefs->red, "Y");
-			
-			if(channels.findChannel("RY") && channels.findChannel("BY"))
-			{
-				strcpy(prefs->green, "RY");
-				strcpy(prefs->blue, "BY");
-			}
-			else
-			{
-				strcpy(prefs->green, "Y");
-				strcpy(prefs->blue, "Y");
-			}
-		}
-		else
-		{
-			strcpy(prefs->red, (channels.findChannel("R") ? "R" : "(none)"));
-			strcpy(prefs->green, (channels.findChannel("G") ? "G" : "(none)"));
-			strcpy(prefs->blue, (channels.findChannel("B") ? "B" : "(none)"));
-		}
-		
-		strcpy(prefs->alpha, (channels.findChannel("A") ? "A" : "(none)"));
-		
-		prefs->bypassConversion = false;
-		
-		prefs->file_init = TRUE;
-	}
 }
 
 
@@ -670,94 +575,20 @@ SDKGetPrefs8(
 			{
 				if(prefsRec->firstTime)
 				{
-					assert(prefs->file_init == FALSE);
-				
 					InitPrefs(prefs);
 				}
 				else
 				{
-					assert(prefs->file_init == TRUE);
-				
-					assert(0 == strncmp(prefs->magic, "oEXR", 4));
-					assert(prefs->version == 1);
-				
-					auto_ptr<Imf::IStream> instream;
-					
 					if(fileInfo8->fileref != imInvalidHandleValue)
 					{
-						instream.reset(new IStreamPr(fileInfo8->fileref));
+						// already have an open file handle
 					}
 					else
 					{
-						string path = UTF16toUTF8((const utf16_char *)fileInfo8->filepath);
-						
-						instream.reset(new StdIFStream(path.c_str()));
+						// need to re-opne fileInfo8->filepath
 					}
 					
-					if(instream.get() == NULL)
-						throw Iex::NullExc("instream is NULL");
-					
-					
-					HybridInputFile in(*instream);
-					
-					assert(prefs->file_init == TRUE); // file_init should always happen in imGetInfo8...
-					
-					if(prefs->file_init == FALSE) // ...but just in case
-					{
-						assert(prefsRec->firstTime);
-					
-						InitPrefs(in, prefs);
-					}
-					
-					
-					const ChannelList &channels = in.channels();
-					
-					ChannelsList channels_list;
-					
-					for(ChannelList::ConstIterator i = channels.begin(); i != channels.end(); ++i)
-					{
-						if(i.channel().type != Imf::UINT)
-							channels_list.push_back( i.name() );
-					}
-					
-					
-					string	red = prefs->red,
-							green = prefs->green,
-							blue = prefs->blue,
-							alpha = prefs->alpha;
-							
-					bool bypassConversion = prefs->bypassConversion;
-					
-					bool clicked_ok = ProEXR_Channels(channels_list, red, green, blue, alpha, bypassConversion, plugHndl, mwnd);
-					
-					
-					if(clicked_ok)
-					{
-						strncpy(prefs->red, red.c_str(), Name::MAX_LENGTH);
-						strncpy(prefs->green, green.c_str(), Name::MAX_LENGTH);
-						strncpy(prefs->blue, blue.c_str(), Name::MAX_LENGTH);
-						strncpy(prefs->alpha, alpha.c_str(), Name::MAX_LENGTH);
-						
-						prefs->bypassConversion = bypassConversion;
-					
-					#ifdef PREMIERE_CACHE_NOT_CLEARING
-						// Was previously having problems with prefs changing and the cache not clearing
-					#if kPrSDKPPixCacheSuiteVersion >= 4
-						PrSDKPPixCacheSuite *PPixCacheSuite = NULL;
-						stdParms->piSuites->utilFuncs->getSPBasicSuite()->AcquireSuite(kPrSDKPPixCacheSuite, kPrSDKPPixCacheSuiteVersion, (const void**)&PPixCacheSuite);
-						
-						if(PPixCacheSuite)
-						{
-							PPixCacheSuite->ExpireAllPPixesFromCache();
-							stdParms->piSuites->utilFuncs->getSPBasicSuite()->ReleaseSuite(kPrSDKPPixCacheSuite, kPrSDKPPixCacheSuiteVersion);
-						}
-					#endif
-					#endif // PREMIERE_CACHE_NOT_CLEARING
-			
-						result = imNoErr;
-					}
-					else
-						result = imCancel;
+					// pop a dialog for user to set prefs
 				}
 			}
 			catch(...)
@@ -804,66 +635,9 @@ SDKAnalysis(
 
 	try
 	{
-		IStreamPr instream(SDKfileRef);
-		HybridInputFile in(instream);
-		
-		const Header &head = in.header(0);
-		
-		string info;
-		
-		switch( head.compression() )
-		{
-			case Imf::NO_COMPRESSION:
-				info += "No compression";
-				break;
-
-			case Imf::RLE_COMPRESSION:
-				info += "RLE compression";
-				break;
-
-			case Imf::ZIPS_COMPRESSION:
-				info += "Zip compression";
-				break;
-
-			case Imf::ZIP_COMPRESSION:
-				info += "Zip16 compression";
-				break;
-
-			case Imf::PIZ_COMPRESSION:
-				info += "Piz compression";
-				break;
-
-			case Imf::PXR24_COMPRESSION:
-				info += "PXR24 compression";
-				break;
-			
-			case Imf::B44_COMPRESSION:
-				info += "B44 compression";
-				break;
-
-			case Imf::B44A_COMPRESSION:
-				info += "B44A compression";
-				break;
-
-			case Imf::DWAA_COMPRESSION:
-				info += "DWAA compression";
-				break;
-
-			case Imf::DWAB_COMPRESSION:
-				info += "DWAB compression";
-				break;
-
-			default:
-				info += "some weird compression";
-				break;
-		}
+		string info = "Some sort of file information goes here";
 		
 		assert(prefs != NULL); // should have this under control now
-		
-		if(prefs != NULL && prefs->bypassConversion)
-		{
-			info += ", Bypass linear conversion";
-		}
 		
 		if(info.size() > SDKAnalysisRec->buffersize - 1)
 		{
@@ -927,36 +701,16 @@ SDKGetInfo8(
 
 	try
 	{
-		IStreamPr instream(fileAccessInfo8->fileref);
-		HybridInputFile in(instream);
+		const csSDK_int32 width = 4096;
+		const csSDK_int32 height = 2048;
 		
-		
-		const Box2i &dispW = in.displayWindow();
-			
-		const csSDK_int32 width = dispW.max.x - dispW.min.x + 1;
-		const csSDK_int32 height = dispW.max.y - dispW.min.y + 1;
+		const csSDK_int32 pixel_aspect_num = 1;
+		const csSDK_int32 pixel_aspect_den = 1;
 
-
-		const Header &head = in.header(0);
+		const csSDK_int32 fps_num = 24;
+		const csSDK_int32 fps_den = 1;
 		
-		Rational pixel_aspect_ratio;
-		
-		// if I stored a ratio in the file, let's use that
-	#define PIXEL_ASPECT_RATIONAL_KEY	"pixelAspectRatioRational"
-		const RationalAttribute *par = head.findTypedAttribute<RationalAttribute>(PIXEL_ASPECT_RATIONAL_KEY);
-		
-		if(par)
-		{
-			pixel_aspect_ratio = par->value();
-		}
-		else
-		{
-			// EXR stores pixel aspect ratio as a floating point number (boo!)
-			pixel_aspect_ratio = Rational( head.pixelAspectRatio() );
-		}
-		
-
-		const csSDK_int32 depth = (in.channels().findChannel("A") ? 128 : 96);
+		const csSDK_int32 depth = 16;
 
 
 		SDKFileInfo8->hasVideo = kPrTrue;
@@ -976,22 +730,17 @@ SDKGetInfo8(
 
 		SDKFileInfo8->vidInfo.alphaType		= (depth == 128 ? alphaBlackMatte : alphaNone);
 
-		SDKFileInfo8->vidInfo.pixelAspectNum	= pixel_aspect_ratio.n;
-		SDKFileInfo8->vidInfo.pixelAspectDen	= pixel_aspect_ratio.d;
+		SDKFileInfo8->vidInfo.pixelAspectNum	= pixel_aspect_num;
+		SDKFileInfo8->vidInfo.pixelAspectDen	= pixel_aspect_den;
 		
 		SDKFileInfo8->vidInfo.interpretationUncertain = imFieldTypeUncertain;
 
 		SDKFileInfo8->vidInfo.supportsAsyncIO			= kPrFalse;
 		SDKFileInfo8->vidInfo.supportsGetSourceVideo	= kPrTrue;
 
-
-		if( hasFramesPerSecond( head ) )
-		{
-			const Rational &fps = framesPerSecond( head );
-			
-			SDKFileInfo8->vidScale = fps.n;
-			SDKFileInfo8->vidSampleSize = fps.d;
-		}
+		// this is optional
+		SDKFileInfo8->vidScale = fps_num;
+		SDKFileInfo8->vidSampleSize = fps_den;
 		
 		
 		SDKFileInfo8->accessModes = kRandomAccessImport;
@@ -1017,11 +766,6 @@ SDKGetInfo8(
 		
 		
 		ImporterPrefs *prefs = reinterpret_cast<ImporterPrefs *>(SDKFileInfo8->prefs);
-		
-		if(prefs && prefs->file_init == FALSE)
-		{
-			InitPrefs(in, prefs);
-		}
 		
 		
 		ldataP->width = SDKFileInfo8->vidInfo.imageWidth;
@@ -1075,44 +819,10 @@ SDKGetTimeInfo8(
 {
 	prMALError err = malNoError;
 
-	try
-	{
-		IStreamPr instream(SDKfileRef);
-		HybridInputFile in(instream);
-
-		const Header &head = in.header(0);
-
-		if(hasTimeCode( head ) && SDKtimeInfoRec8->dataType == 1)
-		{
-			const TimeCode &time_code = timeCode( head );
-			
-			const string sep = (time_code.dropFrame() ? ";" : ":");
-			
-			stringstream s;
-			
-			s << setfill('0') << setw(2) << time_code.hours() << sep;
-			s << setfill('0') << setw(2) << time_code.minutes() << sep;
-			s << setfill('0') << setw(2) << time_code.seconds() << sep;
-			s << setfill('0') << setw(2) << time_code.frame();
-					
-			strncpy(SDKtimeInfoRec8->orgtime, s.str().c_str(), 17);
-			
-			
-			if( hasFramesPerSecond( head ) )
-			{
-				const Rational &fps = framesPerSecond( head );
-				
-				SDKtimeInfoRec8->orgScale = fps.n;
-				SDKtimeInfoRec8->orgSampleSize = fps.d;
-			}
-		}
-		else
-			err = imNoTimecode;
-	}
-	catch(...)
-	{
-		err = malUnknownError;
-	}
+	strncpy(SDKtimeInfoRec8->orgtime, "00:00:00:12", 17);
+	
+	SDKtimeInfoRec8->orgScale = 24;
+	SDKtimeInfoRec8->orgSampleSize = 1;
 
 	return err;
 }
@@ -1134,13 +844,7 @@ SDKSetTimeInfo(
 	
 	try
 	{
-		IStreamPr instream(SDKfileRef);
-		HybridInputFile in(instream);
 		
-		if(hasTimeCode( in.header(0) ) && SDKtimeInfoRec8->dataType == 1)
-		{
-		
-		}
 	}
 	catch(...)
 	{
@@ -1148,224 +852,6 @@ SDKSetTimeInfo(
 	}
 
 	return err;
-}
-
-
-// rarely you might get a channel that has a subsampling factor (mostly if you foolishly grab a Y/C channel)
-// this will expand those channels to the full buffer size
-static void FixSubsampling(const FrameBuffer &framebuffer, const Box2i &dw)
-{
-	for(FrameBuffer::ConstIterator i = framebuffer.begin(); i != framebuffer.end(); i++)
-	{
-		const Slice & slice = i.slice();
-		
-		if(slice.xSampling != 1 || slice.ySampling != 1)
-		{
-			char *row_subsampled = (char *)slice.base + (slice.yStride * (dw.min.y + ((1 + dw.max.y - dw.min.y) / slice.ySampling) - 1)) + (slice.xStride * (dw.min.x + ((1 + dw.max.x - dw.min.x) / slice.ySampling) - 1));
-			char *row_expanded = (char *)slice.base + (slice.yStride * dw.max.y) + (slice.xStride * dw.max.x);
-			
-			for(int y = dw.max.y; y >= dw.min.y; y--)
-			{
-				char *pix_subsampled = row_subsampled;
-				char *pix_expanded = row_expanded;
-				
-				for(int x = dw.max.x; x >= dw.min.x; x--)
-				{
-					if(slice.type == Imf::FLOAT)
-					{
-						*((float *)pix_expanded) = *((float *)pix_subsampled);
-					}
-					else if(slice.type == Imf::UINT)
-					{
-						*((unsigned int *)pix_expanded) = *((unsigned int *)pix_subsampled);
-					}
-					else
-						assert(false);
-					
-					if(x % slice.xSampling == 0)
-						pix_subsampled -= slice.xStride;
-					
-					pix_expanded -= slice.xStride;
-				}
-				
-				if(y % slice.ySampling == 0)
-					row_subsampled -= slice.yStride;
-				
-				row_expanded -= slice.yStride;
-			}
-		}
-	}
-}
-
-
-typedef struct DupInfo {
-	Slice src;
-	Slice dst;
-	
-	DupInfo(const Slice &s, const Slice &d) : src(s), dst(d) {}
-} DupInfo;
-
-typedef std::vector<DupInfo> DupSet;
-
-static void FixDuplicates(const DupSet &dupSet, const Box2i &dw)
-{
-	for(DupSet::const_iterator i = dupSet.begin(); i != dupSet.end(); ++i)
-	{
-		const DupInfo &dupInfo = *i;
-		
-		if(dupInfo.src.type != dupInfo.dst.type)
-			continue;
-	
-		char *src_row = (char *)dupInfo.src.base + (dupInfo.src.yStride * dw.min.y) + (dupInfo.src.xStride * dw.min.x);
-		char *dst_row = (char *)dupInfo.dst.base + (dupInfo.dst.yStride * dw.min.y) + (dupInfo.dst.xStride * dw.min.x);
-		
-		for(int y = dw.min.y; y <= dw.max.y; y++)
-		{
-			if(dupInfo.src.type == Imf::FLOAT)
-			{
-				float *src = (float *)src_row;
-				float *dst = (float *)dst_row;
-				
-				const int src_step = dupInfo.src.xStride / sizeof(float);
-				const int dst_step = dupInfo.dst.xStride / sizeof(float);
-				
-				for(int x = dw.min.x; x <= dw.max.x; x++)
-				{
-					*dst = *src;
-					
-					src += src_step;
-					dst += dst_step;
-				}
-			}
-			else
-				assert(false);
-		
-			src_row += dupInfo.src.yStride;
-			dst_row += dupInfo.dst.yStride;
-		}
-	}
-}
-
-
-class FillRowTask : public Task
-{
-public:
-	FillRowTask(TaskGroup *group, char *pixel_origin, RowbyteType rowbytes, float value, int width, int row);
-	virtual ~FillRowTask() {}
-	
-	virtual void execute();
-	
-private:
-	float *_pixel_row;
-	const float _value;
-	const int _width;
-};
-
-
-FillRowTask::FillRowTask(TaskGroup *group, char *pixel_origin, RowbyteType rowbytes, float value, int width, int row) :
-	Task(group),
-	_value(value),
-	_width(width)
-{
-	_pixel_row = (float *)(pixel_origin + (rowbytes * row));
-}
-
-
-void
-FillRowTask::execute()
-{
-	float *pix = _pixel_row;
-	
-	for(int x=0; x < _width; x++)
-	{
-		*pix++ = _value;
-	}
-}
-
-
-class ConvertRgbaRowTask : public Task
-{
-  public:
-	ConvertRgbaRowTask(TaskGroup *group, Rgba *input_row, float *output_row, int witdh);
-	virtual ~ConvertRgbaRowTask() {}
-	
-	virtual void execute();
-
-  private:
-	const Rgba *_input_row;
-	float *_output_row;
-	const int _width;
-};
-
-
-ConvertRgbaRowTask::ConvertRgbaRowTask(TaskGroup *group, Rgba *input_row, float *output_row, int width) :
-	Task(group),
-	_input_row(input_row),
-	_output_row(output_row),
-	_width(width)
-{
-
-}
-
-
-void
-ConvertRgbaRowTask::execute()
-{
-	const Rgba *in = _input_row;
-	float *out = _output_row;
-	
-	for(int x=0; x < _width; x++)
-	{
-		*out++ = in->b;
-		*out++ = in->g;
-		*out++ = in->r;
-		*out++ = in->a;
-		
-		in++;
-	}
-}
-
-
-class CopyPPixRowTask : public Task
-{
-  public:
-	CopyPPixRowTask(TaskGroup *group,
-					const char *input_origin, RowbyteType input_rowbytes,
-					char *output_origin, RowbyteType output_rowbytes,
-					int width, int row);
-	virtual ~CopyPPixRowTask() {}
-	
-	virtual void execute();
-
-  private:
-	const float *_input_row;
-	float *_output_row;
-	const int _width;
-};
-
-
-CopyPPixRowTask::CopyPPixRowTask(TaskGroup *group,
-									const char *input_origin, RowbyteType input_rowbytes,
-									char *output_origin, RowbyteType output_rowbytes,
-									int width, int row) :
-	Task(group),
-	_width(width)
-{
-	_input_row = (float *)(input_origin + (input_rowbytes * row));
-	_output_row = (float *)(output_origin + (output_rowbytes * row));
-}
-
-
-void
-CopyPPixRowTask::execute()
-{
-	const float *in = _input_row;
-	float *out = _output_row;
-	
-	for(int x=0; x < _width; x++)
-	{
-		*out++ = *in++;
-	}
 }
 
 
@@ -1387,64 +873,18 @@ SDKGetSourceVideo(
 	
 	try
 	{
-		if( supportsThreads() )
-			setGlobalThreadCount(gNumCPUs);
-			
-			
 		// read the file
-		IStreamPr instream(fileRef);
-		HybridInputFile in(instream);
-		
-		
-		const char *red = "R", *green = "G", *blue = "B", *alpha = "A";
-		const char *y = "Y", *ry = "RY", *by = "BY";
-		
-		bool bypassConversion = false;
-		
-		assert(prefs != NULL); // should have been created by imGetPrefs8 or imGetInfo8
-		
-		if(prefs && prefs->file_init)
-		{
-			assert(0 == strncmp(prefs->magic, "oEXR", 4));
-			assert(prefs->version == 1);
-		
-			red = prefs->red;
-			green = prefs->green;
-			blue = prefs->blue;
-			alpha = prefs->alpha;
-			
-			bypassConversion = prefs->bypassConversion;
-		}
-		else if(in.channels().findChannel("Y") && !in.channels().findChannel("R"))
-		{
-			if(in.channels().findChannel("RY") && in.channels().findChannel("BY"))
-			{
-				red = y;
-				green = ry;
-				blue = by;
-			}
-			else
-			{
-				red = green = blue = y;
-			}
-		}
-		
 		
 		// make the Premiere buffer
-		if(sourceVideoRec->inFrameFormats == NULL)
-			throw Iex::NullExc("inFrameFormats is NULL");
-		
 		assert(sourceVideoRec->inNumFrameFormats == 1);
 		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
 		
 		imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
 		
-		frameFormat.inPixelFormat = (bypassConversion ? PrPixelFormat_BGRA_4444_32f : PrPixelFormat_BGRA_4444_32f_Linear);
+		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
 				
-		const Box2i &dispW = in.displayWindow();
-		
-		const int width = dispW.max.x - dispW.min.x + 1;
-		const int height = dispW.max.y - dispW.min.y + 1;
+		const int width = 4096;
+		const int height = 2048;
 		
 		assert(frameFormat.inFrameWidth == width);
 		assert(frameFormat.inFrameHeight == height);
@@ -1459,209 +899,8 @@ SDKGetSourceVideo(
 		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
 		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
 		
-
-
-		char *dataW_origin = buf;
-		RowbyteType dataW_rowbytes = rowBytes;
-		csSDK_int32 dataW_width = width;
-		csSDK_int32 dataW_height = height;
 		
-		
-		const Box2i &dataW = in.dataWindow();
-		
-		if((dataW != dispW) || (in.parts() > 1))
-		{
-			// if some pixels will not be written to,
-			// clear the PPixHand out first
-			if( (in.parts() > 1) ||
-				(dataW.min.x > dispW.min.x) ||
-				(dataW.min.y > dispW.min.y) ||
-				(dataW.max.x < dispW.max.x) ||
-				(dataW.max.y < dispW.max.y) )
-			{
-				TaskGroup taskGroup;
-				
-				for(int y=0; y < height; y++)
-				{
-					ThreadPool::addGlobalTask(new FillRowTask(&taskGroup, buf, rowBytes, 0.f,
-																width * 4, y) );
-				}
-				
-				// if the dataWindow does not actually intersect the displayWindow,
-				// no need to continue further
-				if( !dataW.intersects(dispW) )
-				{
-					return result;
-				}
-			}
-			
-			
-			dataW_width = dataW.max.x - dataW.min.x + 1;
-			dataW_height = dataW.max.y - dataW.min.y + 1;
-			
-			// if dataWindow is completely inside displayWindow, we can use the
-			// existing PPixHand, otherwise have to create a new one
-			if( (dataW.min.x >= dispW.min.x) &&
-				(dataW.min.y >= dispW.min.y) &&
-				(dataW.max.x <= dispW.max.x) &&
-				(dataW.max.y <= dispW.max.y) )
-			{
-				dataW_origin = buf + (rowBytes * (dispW.max.y - dataW.max.y)) + (sizeof(float) * 4 * (dataW.min.x - dispW.min.x));
-			}
-			else
-			{
-				prRect tempRect;
-				prSetRect(&tempRect, 0, 0, dataW_width, dataW_height);
-				
-				ldataP->PPixCreatorSuite->CreatePPix(&temp_ppix, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &tempRect);
-				ldataP->PPixSuite->GetPixels(temp_ppix, PrPPixBufferAccess_ReadWrite, &dataW_origin);
-				ldataP->PPixSuite->GetRowBytes(temp_ppix, &dataW_rowbytes);
-			}
-		}
-		
-		
-		if(frameFormat.inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear || frameFormat.inPixelFormat == PrPixelFormat_BGRA_4444_32f)
-		{
-			if(string(red) == "Y" &&
-				(string(green) == "RY" || string(green) == "Y") &&
-				(string(blue) == "BY" || string(blue) == "Y") )
-			{
-				instream.seekg(0);
-				
-				Array2D<Rgba> half_buffer(dataW_height, dataW_width);
-				
-				RgbaInputFile inputFile(instream);
-				
-				inputFile.setFrameBuffer(&half_buffer[-dataW.min.y][-dataW.min.x], 1, dataW_width);
-				inputFile.readPixels(dataW.min.y, dataW.max.y);
-				
-				
-				TaskGroup taskGroup;
-				
-				char *buf_row = dataW_origin;
-				
-				for(int y = dataW_height - 1; y >= 0; y--)
-				{
-					float *buf_pix = (float *)buf_row;
-					
-					ThreadPool::addGlobalTask(new ConvertRgbaRowTask(&taskGroup,
-																		&half_buffer[y][0],
-																		buf_pix,
-																		dataW_width) );
-					
-					buf_row += dataW_rowbytes;
-				}
-			}
-			else
-			{
-				FrameBuffer frameBuffer;
-				
-				char *exr_BGRA_origin = (char *)dataW_origin - (sizeof(float) * 4 * dataW.min.x) + (dataW_rowbytes * dataW.max.y);
-				
-				
-				DupSet dupSet;
-				
-				const char *chan[4] = { blue, green, red, alpha };
-				
-				for(int c=0; c < 4; c++)
-				{
-					int xSampling = 1,
-						ySampling = 1;
-					
-					const Channel *channel = in.channels().findChannel(chan[c]);
-					
-					if(channel)
-					{
-						xSampling = channel->xSampling;
-						ySampling = channel->ySampling;
-					}
-					
-					const float fill = (c == 3 ? 1.f : 0.f);
-				
-					Slice slice(Imf::FLOAT,
-								exr_BGRA_origin + (sizeof(float) * c),
-								sizeof(float) * 4,
-								-dataW_rowbytes,
-								xSampling, ySampling, fill);
-					
-					const Slice *dup_slice = frameBuffer.findSlice(chan[c]);
-					
-					if(dup_slice == NULL)
-					{
-						frameBuffer.insert(chan[c], slice);
-					}
-					else
-					{
-						// The OpenEXR FrameBuffer can only hold one slice per channel name
-						// because it uses a std::map.  If the user uses the same channel name
-						// more than once, we have to duplicate it ourselves.
-						
-						dupSet.push_back( DupInfo(*dup_slice, slice) );
-					}
-				}
-	
-
-				in.setFrameBuffer(frameBuffer);
-				
-				in.readPixels(dataW.min.y, dataW.max.y);
-				
-				
-				FixSubsampling(frameBuffer, dataW);
-				
-				FixDuplicates(dupSet, dataW);
-			}
-			
-			
-			if(temp_ppix)
-			{
-				// have to draw dataWindow pixels inside the displayWindow
-				prPoint disp_origin, data_origin;
-				
-				if(dispW.min.x < dataW.min.x)
-				{
-					disp_origin.x = dataW.min.x - dispW.min.x;
-					data_origin.x = 0;
-				}
-				else
-				{
-					disp_origin.x = 0;
-					data_origin.x = dispW.min.x - dataW.min.x;
-				}
-				
-				
-				if(dispW.max.y > dataW.max.y)
-				{
-					disp_origin.y = dispW.max.y - dataW.max.y;
-					data_origin.y = 0;
-				}
-				else
-				{
-					disp_origin.y = 0;
-					data_origin.y = dataW.max.y - dispW.max.y;
-				}
-				
-				
-				char *display_pixel_origin = buf + (disp_origin.y * rowBytes) + (disp_origin.x * sizeof(float) * 4);
-				
-				char *data_pixel_origin = dataW_origin + (data_origin.y * dataW_rowbytes) + (data_origin.x * sizeof(float) * 4);
-				
-				const int copy_width = min(dispW.max.x, dataW.max.x) - max(dispW.min.x, dataW.min.x) + 1;
-				const int copy_height = min(dispW.max.y, dataW.max.y) - max(dispW.min.y, dataW.min.y) + 1;
-				
-				
-				TaskGroup taskGroup;
-				
-				for(int y=0; y < copy_height; y++)
-				{
-					ThreadPool::addGlobalTask(new CopyPPixRowTask(&taskGroup,
-														data_pixel_origin, dataW_rowbytes,
-														display_pixel_origin, rowBytes,
-														copy_width * 4, y) );
-				}
-			}
-		}
-		else
-			assert(false);
+		// read your file a fill in the pixel buffer!
 	}
 	catch(...)
 	{
