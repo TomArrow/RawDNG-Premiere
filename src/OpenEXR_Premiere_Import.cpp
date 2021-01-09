@@ -56,7 +56,8 @@ using namespace std;
 
 static const csSDK_int32 OpenEXR_ID = 'oEXR';
 
-extern unsigned int gNumCPUs;
+//extern unsigned int gNumCPUs;
+unsigned int gNumCPUs = 1;
 
 
 typedef struct

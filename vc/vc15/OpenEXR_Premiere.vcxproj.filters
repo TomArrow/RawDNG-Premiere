@@ -90,19 +90,13 @@
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\ImfHybridInputFile.h" />
     <ClInclude Include="..\..\src\OpenEXR_Premiere_Dialogs.h" />
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_Export.h" />
     <ClInclude Include="..\..\src\OpenEXR_Premiere_Import.h" />
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_IO.h" />
     <ClInclude Include="..\..\src\OpenEXR_UTF.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\ImfHybridInputFile.cpp" />
     <ClCompile Include="..\..\src\win\OpenEXR_Premiere_Dialogs_Win.cpp" />
-    <ClCompile Include="..\..\src\OpenEXR_Premiere_Export.cpp" />
     <ClCompile Include="..\..\src\OpenEXR_Premiere_Import.cpp" />
-    <ClCompile Include="..\..\src\OpenEXR_Premiere_IO.cpp" />
     <ClCompile Include="..\..\src\OpenEXR_UTF.cpp" />
   </ItemGroup>
 </Project>
