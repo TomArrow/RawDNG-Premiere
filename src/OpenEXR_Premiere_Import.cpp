@@ -54,7 +54,7 @@
 using namespace std;
 
 
-static const csSDK_int32 OpenEXR_ID = 'oEXR';
+static const csSDK_int32 RawDNG_ID = 'rDNG';
 
 //extern unsigned int gNumCPUs;
 unsigned int gNumCPUs = 1;
@@ -87,6 +87,7 @@ SDKInit(
 	imStdParms		*stdParms, 
 	imImportInfoRec *importInfo)
 {
+
 	PrSDKAppInfoSuite *appInfoSuite = NULL;
 	stdParms->piSuites->utilFuncs->getSPBasicSuite()->AcquireSuite(kPrSDKAppInfoSuite, kPrSDKAppInfoSuiteVersion, (const void**)&appInfoSuite);
 	
@@ -98,12 +99,12 @@ SDKInit(
 	
 		stdParms->piSuites->utilFuncs->getSPBasicSuite()->ReleaseSuite(kPrSDKAppInfoSuite, kPrSDKAppInfoSuiteVersion);
 		
-		if(fourCC == kAppAfterEffects)
-			return imOtherErr;
+		//if(fourCC == kAppAfterEffects)
+		//	return imOtherErr;
 	}
 
 
-	importInfo->importerType		= OpenEXR_ID;
+	importInfo->importerType		= RawDNG_ID;
 
 	importInfo->canSave				= kPrFalse;		// Can 'save as' files to disk, real file only
 	
@@ -174,11 +175,11 @@ SDKGetIndFormat(
 		
 		case 0:
 			do{
-				char formatname[255]	= "OpenEXR";
-				char shortname[32]		= "OpenEXR";
-				char platformXten[256]	= "exr\0sxr\0mxr\0\0";
+				char formatname[255]	= "RawDNG Importer";
+				char shortname[32]		= "RawDNG";
+				char platformXten[256]	= "dng\0\0";
 
-				SDKIndFormatRec->filetype			= OpenEXR_ID;
+				SDKIndFormatRec->filetype			= RawDNG_ID;
 
 				SDKIndFormatRec->canWriteTimecode	= kPrTrue;
 				SDKIndFormatRec->canWriteMetaData	= kPrFalse;
@@ -262,7 +263,7 @@ SDKOpenFile8(
 	else
 	{
 		SDKfileOpenRec8->fileinfo.fileref = *SDKfileRef = fileRef;
-		SDKfileOpenRec8->fileinfo.filetype = OpenEXR_ID;
+		SDKfileOpenRec8->fileinfo.filetype = RawDNG_ID;
 	}
 	
 #else
@@ -314,7 +315,7 @@ SDKOpenFile8(
 	else
 	{
 		SDKfileOpenRec8->fileinfo.fileref = *SDKfileRef = CAST_FILEREF(refNum);
-		SDKfileOpenRec8->fileinfo.filetype = OpenEXR_ID;
+		SDKfileOpenRec8->fileinfo.filetype = RawDNG_ID;
 	}
 	
 #endif
@@ -523,7 +524,7 @@ InitPrefs(ImporterPrefs *prefs)
 {
 	memset(prefs, 0, sizeof(ImporterPrefs));
 
-	strcpy(prefs->magic, "oEXR");
+	strcpy(prefs->magic, "rDNG");
 }
 
 
