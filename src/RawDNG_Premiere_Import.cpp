@@ -37,7 +37,7 @@
 //------------------------------------------
 
 
-#include "OpenEXR_Premiere_Import.h"
+#include "RawDNG_Premiere_Import.h"
 
 #include <string>
 

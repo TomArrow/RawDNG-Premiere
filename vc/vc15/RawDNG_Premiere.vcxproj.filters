@@ -21,7 +21,7 @@
     <ResourceCompile Include="..\..\src\win\OpenEXR_Import.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="..\..\src\win\OpenEXR_Import_Dialog.rc" />
+    <ResourceCompile Include="..\..\src\win\RawDNG_Import_Dialog.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\PrSDKAlphaTypes.h">
@@ -90,13 +90,13 @@
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_Dialogs.h" />
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_Import.h" />
-    <ClInclude Include="..\..\src\OpenEXR_UTF.h" />
+    <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
+    <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
+    <ClInclude Include="..\..\src\RawDNG_UTF.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\win\OpenEXR_Premiere_Dialogs_Win.cpp" />
-    <ClCompile Include="..\..\src\OpenEXR_Premiere_Import.cpp" />
-    <ClCompile Include="..\..\src\OpenEXR_UTF.cpp" />
+    <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
+    <ClCompile Include="..\..\src\win\RawDNG_Premiere_Dialogs_Win.cpp" />
+    <ClCompile Include="..\..\src\RawDNG_UTF.cpp" />
   </ItemGroup>
 </Project>

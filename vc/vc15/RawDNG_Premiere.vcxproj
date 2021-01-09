@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8C4F19A7-759E-4D52-BAEC-7ADF50FBFE8F}</ProjectGuid>
+    <ProjectGuid>{A8DF36B2-4477-4D83-94D1-6C1132965987}</ProjectGuid>
     <RootNamespace>OpenEXR_Premiere</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
     <ProjectName>RawDNG_Premiere</ProjectName>
@@ -112,7 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\src\win\OpenEXR_Import.rc" />
-    <ResourceCompile Include="..\..\src\win\OpenEXR_Import_Dialog.rc" />
+    <ResourceCompile Include="..\..\src\win\RawDNG_Import_Dialog.rc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\PrSDKAlphaTypes.h" />
@@ -137,14 +137,14 @@
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPConfig.h" />
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPErrorCodes.h" />
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPTypes.h" />
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_Dialogs.h" />
-    <ClInclude Include="..\..\src\OpenEXR_Premiere_Import.h" />
-    <ClInclude Include="..\..\src\OpenEXR_UTF.h" />
+    <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
+    <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
+    <ClInclude Include="..\..\src\RawDNG_UTF.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\OpenEXR_Premiere_Import.cpp" />
-    <ClCompile Include="..\..\src\OpenEXR_UTF.cpp" />
-    <ClCompile Include="..\..\src\win\OpenEXR_Premiere_Dialogs_Win.cpp" />
+    <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
+    <ClCompile Include="..\..\src\RawDNG_UTF.cpp" />
+    <ClCompile Include="..\..\src\win\RawDNG_Premiere_Dialogs_Win.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

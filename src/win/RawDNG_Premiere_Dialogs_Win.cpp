@@ -36,7 +36,7 @@
 //------------------------------------------
 
 
-#include "OpenEXR_Premiere_Dialogs.h"
+#include "RawDNG_Premiere_Dialogs.h"
 
 #include <windows.h>
 
