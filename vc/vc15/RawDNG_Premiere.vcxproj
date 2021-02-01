@@ -49,6 +49,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <TargetExt>.prm</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -111,7 +112,6 @@
     <Image Include="..\..\src\win\OpenEXR_banner.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\src\win\OpenEXR_Import.rc" />
     <ResourceCompile Include="..\..\src\win\RawDNG_Import_Dialog.rc" />
   </ItemGroup>
   <ItemGroup>

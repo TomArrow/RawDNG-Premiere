@@ -45,6 +45,10 @@
 #include <assert.h>
 
 
+// Just for debugging:
+#include <iostream>
+#include <fstream>
+
 #ifdef PRMAC_ENV
 	#include <mach/mach.h>
 #endif
@@ -169,6 +173,7 @@ SDKGetIndFormat(
 {
 	prMALError	result		= malNoError;
 	
+
 	switch(index)
 	{
 		//	Add a case for each filetype.
@@ -872,11 +877,13 @@ SDKGetSourceVideo(
 	
 
 	PPixHand temp_ppix = NULL;
-	
+
+
 	try
 	{
 		// read the file
-		
+
+
 		// make the Premiere buffer
 		assert(sourceVideoRec->inNumFrameFormats == 1);
 		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
@@ -901,7 +908,16 @@ SDKGetSourceVideo(
 		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
 		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
 		
-		
+		//memset(buf, 255, 4096*1000);
+		float* bufFloat = reinterpret_cast<float*>(buf);
+		for (size_t i = 0; i < 100000; ++i) {
+			bufFloat[i] = 1.0f;
+		}
+
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "frame filling blahblah" << "\n";
+		abasc.close();
 		// read your file a fill in the pixel buffer!
 	}
 	catch(...)
@@ -926,6 +942,12 @@ PREMPLUGENTRY DllExport xImportEntry (
 	void			*param2)
 {
 	prMALError	result				= imUnsupported;
+
+	std::ofstream abasc;
+	abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+	abasc << "selector" << "\n";
+	abasc << selector << "\n";
+	abasc.close();
 
 	switch (selector)
 	{
