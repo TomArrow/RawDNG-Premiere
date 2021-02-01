@@ -90,6 +90,7 @@
     <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
     <ClInclude Include="..\..\src\RawDNG_UTF.h" />
+    <ClInclude Include="..\..\src\rawspeedconfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />

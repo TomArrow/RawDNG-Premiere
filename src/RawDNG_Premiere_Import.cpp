@@ -39,6 +39,8 @@
 
 #include "RawDNG_Premiere_Import.h"
 
+#include "RawSpeed-API.h"
+
 #include <string>
 
 #include <stdio.h>
@@ -882,6 +884,40 @@ SDKGetSourceVideo(
 	try
 	{
 		// read the file
+		unsigned long fileSize = GetFileSize(fileRef,NULL);
+		const uint8_t *fileBuffer = new uint8_t[fileSize];
+
+		ReadFile(fileRef,(void*)fileBuffer,fileSize,NULL,NULL);
+
+		rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer,(uint32_t)fileSize);
+		
+
+
+
+		rawspeed::RawParser parser(map);
+		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
+
+		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
+
+		decoder->decodeRaw();
+		decoder->decodeMetaData(metadata);
+		rawspeed::RawImage raw = decoder->mRaw;
+
+		int components_per_pixel = raw->getCpp();
+		rawspeed::RawImageType type = raw->getDataType();
+		bool is_cfa = raw->isCFA;
+
+		if (true == is_cfa) {
+			rawspeed::ColorFilterArray cfa = raw->cfa;
+			int dcraw_filter = cfa.getDcrawFilter();
+			rawspeed::CFAColor c = cfa.getColorAt(0, 0);
+		}
+		
+		unsigned char* data = raw->getData(0, 0);
+		//int width = raw->dim.x;
+		//int height = raw->dim.y;
+		int pitch_in_bytes = raw->pitch;
+
 
 
 		// make the Premiere buffer
@@ -919,6 +955,10 @@ SDKGetSourceVideo(
 		abasc << "frame filling blahblah" << "\n";
 		abasc.close();
 		// read your file a fill in the pixel buffer!
+
+		delete map;
+		delete decoder;
+		delete[] fileBuffer;
 	}
 	catch(...)
 	{

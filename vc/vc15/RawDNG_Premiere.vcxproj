@@ -97,7 +97,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>..\..\src;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\rawspeed\src\*\*;..\..\ext\rawspeed\src;..\..\ext\rawspeed\src\external;..\..\ext\rawspeed\src\librawspeed;..\..\src;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>ISOLATION_AWARE_ENABLED=1;NDEBUG;WIN32;_WIN64;_WINDOWS;PRWIN_ENV;MSWindows;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -140,6 +140,7 @@
     <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
     <ClInclude Include="..\..\src\RawDNG_UTF.h" />
+    <ClInclude Include="..\..\src\rawspeedconfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
