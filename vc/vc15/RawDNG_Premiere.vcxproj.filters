@@ -11,6 +11,12 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{29668417-d8d3-4332-8884-fd25ca2e3f47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="amaze">
+      <UniqueIdentifier>{b23514d3-ee3d-4e8e-8c6c-e7af22a1cb31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="amaze\rtengine">
+      <UniqueIdentifier>{4a065be5-bff7-4b14-aa8a-51ec66ff92c2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\src\win\OpenEXR_banner.bmp">
@@ -91,10 +97,40 @@
     <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
     <ClInclude Include="..\..\src\RawDNG_UTF.h" />
     <ClInclude Include="..\..\src\rawspeedconfig.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\array2D.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\median.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\opthelper.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\rt_math.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\sleef.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\sleefsseavx.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\StopWatch.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\noncopyable.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\mytime.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
     <ClCompile Include="..\..\src\win\RawDNG_Premiere_Dialogs_Win.cpp" />
     <ClCompile Include="..\..\src\RawDNG_UTF.cpp" />
+    <ClCompile Include="..\..\src\amaze\rtengine\amaze_demosaic_RT.cc">
+      <Filter>amaze\rtengine</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Array2DRef.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ChecksumFile.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Common.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Cpuid.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DefaultInitAllocatorAdaptor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DngOpcodes.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ErrorLog.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\FloatingPoint.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Memory.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Mutex.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\NORangesSet.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Optional.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Point.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Range.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImage.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawspeedException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\SimpleLUT.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Spline.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\TableLookUp.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\AbstractTiffDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ArwDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Cr2Decoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CrwDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcrDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcsDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DngDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ErfDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\IiqDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\KdcDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MefDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MosDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MrwDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NakedDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NefDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\OrfDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\PefDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RafDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoderException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Rw2Decoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SimpleTiffDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SrwDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ThreefrDecoder.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDngDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractHuffmanTable.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractLJpegDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractSamsungDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\BinaryHuffmanTree.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\Cr2Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CrwDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\DeflateDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\FujiDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HasselbladDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTable.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableLookup.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableLUT.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableTree.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableVector.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\JpegDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\KodakDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\LJpegDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\NikonDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\OlympusDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV4.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV5.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV6.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PentaxDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PhaseOneDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV0Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV1Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV2Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw1Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw2Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\UncompressedDecompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\VC5Decompressor.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\Cr2sRawInterpolator.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpJPEG.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpLSB.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB16.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB32.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitStream.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\Buffer.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\ByteStream.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\Endianness.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileIO.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileIOException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileReader.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileWriter.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\IOException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\BlackArea.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\Camera.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetaData.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetadataException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraSensorInfo.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\ColorFilterArray.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParser.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParserException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParser.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParserException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParser.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParserException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParser.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParserException.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\RawSpeed-API.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffEntry.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffIFD.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffTag.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffEntry.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffIFD.h" />
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffTag.h" />
+    <ClInclude Include="rawspeedconfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ChecksumFile.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Common.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Cpuid.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DngOpcodes.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ErrorLog.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\GetNumberOfProcessorCores.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Memory.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImage.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImageDataFloat.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImageDataU16.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\TableLookUp.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\AbstractTiffDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ArwDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Cr2Decoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CrwDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcrDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcsDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DngDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ErfDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\IiqDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\KdcDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MefDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MosDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MrwDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NakedDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NefDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\OrfDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\PefDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RafDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Rw2Decoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SimpleTiffDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SrwDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ThreefrDecoder.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDngDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractLJpegDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\Cr2Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CrwDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\DeflateDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\FujiDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HasselbladDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\JpegDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\KodakDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\LJpegDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\NikonDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\OlympusDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV4.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV5.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV6.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PentaxDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PhaseOneDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV0Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV1Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV2Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw1Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw2Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\UncompressedDecompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\VC5Decompressor.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\Cr2sRawInterpolator.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitStream.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileReader.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileWriter.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\Camera.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetaData.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraSensorInfo.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\ColorFilterArray.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParser.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParser.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParser.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParser.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffEntry.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffIFD.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffEntry.cpp" />
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffIFD.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CMakeLists.txt" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{61d87496-ea69-4607-879d-8fbbd64bad54}</ProjectGuid>
+    <RootNamespace>rawspeed</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>ClangCL</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>ClangCL</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>
+      </SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

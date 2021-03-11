@@ -1,0 +1,590 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Array2DRef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ChecksumFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Cpuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DefaultInitAllocatorAdaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DngOpcodes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ErrorLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\FloatingPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Mutex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\NORangesSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Optional.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawspeedException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\SimpleLUT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Spline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\TableLookUp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\AbstractTiffDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ArwDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Cr2Decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CrwDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcrDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcsDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DngDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ErfDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\IiqDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\KdcDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MefDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MosDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MrwDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NakedDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NefDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\OrfDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\PefDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RafDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoderException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Rw2Decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SimpleTiffDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SrwDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ThreefrDecoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDngDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractHuffmanTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractLJpegDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractSamsungDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\BinaryHuffmanTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\Cr2Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CrwDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\DeflateDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\FujiDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HasselbladDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableLookup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableLUT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HuffmanTableVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\JpegDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\KodakDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\LJpegDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\NikonDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\OlympusDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV4.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV5.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV6.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PentaxDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PhaseOneDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV0Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV1Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV2Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw1Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw2Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\UncompressedDecompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\VC5Decompressor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\Cr2sRawInterpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpJPEG.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpLSB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB16.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitPumpMSB32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\ByteStream.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\Endianness.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileIOException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\IOException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\BlackArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetaData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetadataException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraSensorInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\ColorFilterArray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParserException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffIFD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffTag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffEntry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffIFD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffTag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\RawSpeed-API.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rawspeedconfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ChecksumFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Cpuid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\DngOpcodes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\ErrorLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\GetNumberOfProcessorCores.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\Memory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImageDataFloat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\RawImageDataU16.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\TableLookUp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\AbstractTiffDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ArwDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Cr2Decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CrwDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcrDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DcsDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\DngDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ErfDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\IiqDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\KdcDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MefDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MosDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\MrwDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NakedDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\NefDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\OrfDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\PefDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RafDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\RawDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\Rw2Decoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SimpleTiffDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\SrwDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\ThreefrDecoder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractDngDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\AbstractLJpegDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\Cr2Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CrwDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\DeflateDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\FujiDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\HasselbladDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\JpegDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\KodakDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\LJpegDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\NikonDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\OlympusDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PanasonicDecompressorV6.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PentaxDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\PhaseOneDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV0Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV1Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SamsungV2Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw1Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\SonyArw2Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\UncompressedDecompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\VC5Decompressor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\Cr2sRawInterpolator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\BitStream.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\FileWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraMetaData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CameraSensorInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\ColorFilterArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CiffParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\FiffParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\RawParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\TiffParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CiffIFD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\TiffIFD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\common\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decoders\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\decompressors\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\interpolators\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\io\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\metadata\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\parsers\CMakeLists.txt" />
+    <Text Include="..\..\..\..\..\ext\rawspeed\src\librawspeed\tiff\CMakeLists.txt" />
+  </ItemGroup>
+</Project>

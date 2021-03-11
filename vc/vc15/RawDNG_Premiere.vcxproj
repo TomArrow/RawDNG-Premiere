@@ -50,6 +50,7 @@
     <OutDir>build\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetExt>.prm</TargetExt>
+    <LibraryPath>..\..\ext\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -98,14 +99,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <AdditionalIncludeDirectories>..\..\ext\rawspeed\src\*\*;..\..\ext\rawspeed\src;..\..\ext\rawspeed\src\external;..\..\ext\rawspeed\src\librawspeed;..\..\src;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers;..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Utils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ISOLATION_AWARE_ENABLED=1;NDEBUG;WIN32;_WIN64;_WINDOWS;PRWIN_ENV;MSWindows;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__attribute__(X);ISOLATION_AWARE_ENABLED=1;NDEBUG;WIN32;_WIN64;_WINDOWS;PRWIN_ENV;MSWindows;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)RawDNG.prm</OutputFile>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalLibraryDirectories>.\ext\build\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rawspeed.lib;zlib.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -137,12 +138,22 @@
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPConfig.h" />
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPErrorCodes.h" />
     <ClInclude Include="..\..\ext\Premiere Pro CS6 r2 Win SDK\Examples\Headers\SPTypes.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\array2D.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\median.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\mytime.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\noncopyable.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\opthelper.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\rt_math.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\sleef.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\sleefsseavx.h" />
+    <ClInclude Include="..\..\src\amaze\rtengine\StopWatch.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
     <ClInclude Include="..\..\src\RawDNG_UTF.h" />
     <ClInclude Include="..\..\src\rawspeedconfig.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\amaze\rtengine\amaze_demosaic_RT.cc" />
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
     <ClCompile Include="..\..\src\RawDNG_UTF.cpp" />
     <ClCompile Include="..\..\src\win\RawDNG_Premiere_Dialogs_Win.cpp" />

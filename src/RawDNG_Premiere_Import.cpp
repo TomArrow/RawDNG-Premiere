@@ -40,6 +40,7 @@
 #include "RawDNG_Premiere_Import.h"
 
 #include "RawSpeed-API.h"
+#include "rawspeedconfig.h"
 
 #include <string>
 
@@ -55,6 +56,30 @@
 	#include <mach/mach.h>
 #endif
 
+
+int rawspeed_get_number_of_processor_cores(){
+	int numberOfCores = 1;
+	if (numberOfCores <= 1)
+	{
+#ifdef PRMAC_ENV
+		// get number of CPUs using Mach calls
+		host_basic_info_data_t hostInfo;
+		mach_msg_type_number_t infoCount;
+
+		infoCount = HOST_BASIC_INFO_COUNT;
+		host_info(mach_host_self(), HOST_BASIC_INFO,
+			(host_info_t)&hostInfo, &infoCount);
+
+		numberOfCores = hostInfo.max_cpus;
+#else
+		SYSTEM_INFO systemInfo;
+		GetSystemInfo(&systemInfo);
+
+		numberOfCores = systemInfo.dwNumberOfProcessors;
+#endif
+	}
+	return numberOfCores;
+}
 
 
 using namespace std;
@@ -668,6 +693,17 @@ SDKAnalysis(
 }
 
 
+void ReadFileWrap(HANDLE fileRef, void* fileBuffer, unsigned long fileSize, std::ofstream* abasc4) {
+	__try {
+		uint32_t bytesRead;
+		ReadFile(fileRef, (void*)fileBuffer, fileSize, (LPDWORD)&bytesRead, NULL);
+	}
+	__except (1) {
+
+		*abasc4 << "ERROR reading file: " << GetExceptionCode() << "\n";
+	}
+}
+
 prMALError 
 SDKGetInfo8(
 	imStdParms			*stdParms, 
@@ -710,9 +746,47 @@ SDKGetInfo8(
 
 	try
 	{
-		const csSDK_int32 width = 4096;
-		const csSDK_int32 height = 2048;
+		unsigned long fileSize = GetFileSize(fileAccessInfo8->fileref, NULL);
+
+		uint8_t* fileBuffer = new uint8_t[fileSize];
+
+
+		std::ofstream abasc4;
+		abasc4.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		ReadFileWrap(fileAccessInfo8->fileref, (void*)fileBuffer, fileSize, &abasc4);
+		SetFilePointer(fileAccessInfo8->fileref, 0, NULL, FILE_BEGIN);
+
+		abasc4.close();
+
+
 		
+		rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
+
+
+		
+		rawspeed::RawParser parser(map);
+		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
+
+		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
+
+		decoder->decodeRaw();
+		decoder->decodeMetaData(metadata);
+		rawspeed::RawImage raw = decoder->mRaw;
+
+		int rawwidth = raw->dim.x;
+		int rawheight = raw->dim.y;
+		//const csSDK_int32 width = rawwidth;
+		//const csSDK_int32 height = rawheight;
+		delete map;
+		delete decoder;
+		delete[] fileBuffer;
+		
+		const csSDK_int32 width = rawwidth;
+		const csSDK_int32 height = rawheight;
+
+		
+
+
 		const csSDK_int32 pixel_aspect_num = 1;
 		const csSDK_int32 pixel_aspect_den = 1;
 
@@ -782,6 +856,7 @@ SDKGetInfo8(
 		ldataP->importerID = SDKFileInfo8->vidInfo.importerID;
 
 		stdParms->piSuites->memFuncs->unlockHandle(reinterpret_cast<char**>(ldataH));
+
 	}
 	catch(...)
 	{
@@ -880,18 +955,37 @@ SDKGetSourceVideo(
 
 	PPixHand temp_ppix = NULL;
 
+	std::ofstream abasc;
+	abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+	abasc << "before frame filling" << "\n";
+	abasc.close();
 
 	try
 	{
+
 		// read the file
 		unsigned long fileSize = GetFileSize(fileRef,NULL);
-		const uint8_t *fileBuffer = new uint8_t[fileSize];
 
-		ReadFile(fileRef,(void*)fileBuffer,fileSize,NULL,NULL);
+		uint8_t *fileBuffer = new uint8_t[fileSize];
+
+		std::ofstream abasc2;
+		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc2 << "before frame filling 2 " << fileSize << "\n";
+		abasc2 << "abc" << fileBuffer << "\n";
+		abasc2.close();
+
+
+
+		std::ofstream abasc4;
+		abasc4.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		ReadFileWrap(fileRef, (void*)fileBuffer, fileSize, &abasc4);
+
+
+		abasc4.close();
+
 
 		rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer,(uint32_t)fileSize);
 		
-
 
 
 		rawspeed::RawParser parser(map);
@@ -914,11 +1008,11 @@ SDKGetSourceVideo(
 		}
 		
 		unsigned char* data = raw->getData(0, 0);
-		//int width = raw->dim.x;
-		//int height = raw->dim.y;
+		int rawwidth = raw->dim.x;
+		int rawheight = raw->dim.y;
 		int pitch_in_bytes = raw->pitch;
 
-
+		unsigned int bpp = raw->getBpp();
 
 		// make the Premiere buffer
 		assert(sourceVideoRec->inNumFrameFormats == 1);
@@ -928,8 +1022,8 @@ SDKGetSourceVideo(
 		
 		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
 				
-		const int width = 4096;
-		const int height = 2048;
+		const int width = rawwidth;
+		const int height = rawheight;
 		
 		assert(frameFormat.inFrameWidth == width);
 		assert(frameFormat.inFrameHeight == height);
@@ -946,22 +1040,58 @@ SDKGetSourceVideo(
 		
 		//memset(buf, 255, 4096*1000);
 		float* bufFloat = reinterpret_cast<float*>(buf);
-		for (size_t i = 0; i < 100000; ++i) {
-			bufFloat[i] = 1.0f;
-		}
+		uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
 
-		std::ofstream abasc;
-		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc << "frame filling blahblah" << "\n";
-		abasc.close();
+		double maxValue = pow(2.0, 16.0) - 1;
+		double tmp;
+
+		for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				tmp = dataAs16bit[y*pitch_in_bytes/2 + x] / maxValue;
+				bufFloat[y*width*4+x*4] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 1] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 2] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
+			}
+		}
+		/*
+		for (size_t i = 0; i < 500000; i+=4) {
+			bufFloat[i] = dataAs16bit[i];
+			bufFloat[i+1] = dataAs16bit[i];
+			bufFloat[i+2] = dataAs16bit[i];
+			bufFloat[i+3] = 1.0f;
+		}
+		for (size_t i = 500000; i < 900000; ++i) {
+			bufFloat[i] = 1.0f;
+		}*/
+		//memcpy(bufFloat, data, 4096 * 1000);
+
+
+
+		std::ofstream abasc3;
+		abasc3.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc3 << "frame filling blahblah" << "\n";
+		abasc3 << "width" << rawwidth << "\n";
+		abasc3 << "height" << rawheight << "\n";
+		abasc3.close();
 		// read your file a fill in the pixel buffer!
 
 		delete map;
 		delete decoder;
 		delete[] fileBuffer;
 	}
+	catch (const std::exception& e) {
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "ERROR" << e.what() << "\n";
+		abasc.close();
+	}
 	catch(...)
 	{
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "ERROR GENERIC" <<  "\n";
+		abasc.close();
 		result = malUnknownError;
 	}
 	

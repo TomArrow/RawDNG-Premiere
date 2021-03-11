@@ -27,7 +27,7 @@
 #define HAVE_MM_MALLOC
 #define HAVE_ALIGNED_MALLOC
 
-#define RAWSPEED_STANDALONE_BUILD
+//#define RAWSPEED_STANDALONE_BUILD
 #ifdef RAWSPEED_STANDALONE_BUILD
 #define RAWSPEED_SOURCE_DIR "@RAWSPEED_SOURCE_DIR@"
 #else
@@ -76,8 +76,9 @@
 #ifdef _MSC_VER
 #define __attribute__(x) 
 #define __builtin_unreachable(x)
-#define __builtin_unreachable(x)
 //#define assert(x)
 #define ASAN_REGION_IS_POISONED(x) 0
 #define __PRETTY_FUNCTION__ __FUNCSIG__
+#else
+
 #endif
