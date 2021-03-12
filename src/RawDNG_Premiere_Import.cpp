@@ -42,6 +42,9 @@
 #include "RawSpeed-API.h"
 #include "rawspeedconfig.h"
 
+//#include "amaze/rtengine/array2D.h"
+#include "amaze/rtengine/amaze_demosaic_RT.h"
+
 #include <string>
 
 #include <stdio.h>
@@ -647,7 +650,8 @@ SDKGetIndPixelFormat(
 	switch(idx)
 	{
 		case 0:
-			SDKIndPixelFormatRec->outPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+			//SDKIndPixelFormatRec->outPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+			SDKIndPixelFormatRec->outPixelFormat = PrPixelFormat_BGRA_4444_32f;
 			break;
 	
 		default:
@@ -801,7 +805,8 @@ SDKGetInfo8(
 		
 		
 		// Video information
-		SDKFileInfo8->vidInfo.subType		= PrPixelFormat_BGRA_4444_32f_Linear;
+		//SDKFileInfo8->vidInfo.subType		= PrPixelFormat_BGRA_4444_32f_Linear;
+		SDKFileInfo8->vidInfo.subType		= PrPixelFormat_BGRA_4444_32f; // Intuitively linear would naturally make more sense HOWEVER it seems then MediaCore converts it to Rec709 Gamma 2.4, which creates a wrong look in AE.
 		SDKFileInfo8->vidInfo.imageWidth	= width;
 		SDKFileInfo8->vidInfo.imageHeight	= height;
 		SDKFileInfo8->vidInfo.depth			= depth;
@@ -816,7 +821,9 @@ SDKGetInfo8(
 		SDKFileInfo8->vidInfo.pixelAspectNum	= pixel_aspect_num;
 		SDKFileInfo8->vidInfo.pixelAspectDen	= pixel_aspect_den;
 		
-		SDKFileInfo8->vidInfo.interpretationUncertain = imFieldTypeUncertain;
+		SDKFileInfo8->vidInfo.interpretationUncertain = imFieldTypeUncertain;// | imEmbeddedColorProfileUncertain;
+		SDKFileInfo8->vidInfo.colorProfileSupport = imColorProfileSupport_Fixed;
+
 
 		SDKFileInfo8->vidInfo.supportsAsyncIO			= kPrFalse;
 		SDKFileInfo8->vidInfo.supportsGetSourceVideo	= kPrTrue;
@@ -993,6 +1000,7 @@ SDKGetSourceVideo(
 
 		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
 
+		//decoder->uncorrectedRawValues = true;
 		decoder->decodeRaw();
 		decoder->decodeMetaData(metadata);
 		rawspeed::RawImage raw = decoder->mRaw;
@@ -1001,9 +1009,10 @@ SDKGetSourceVideo(
 		rawspeed::RawImageType type = raw->getDataType();
 		bool is_cfa = raw->isCFA;
 
+		int dcraw_filter = 0;
 		if (true == is_cfa) {
 			rawspeed::ColorFilterArray cfa = raw->cfa;
-			int dcraw_filter = cfa.getDcrawFilter();
+			dcraw_filter = cfa.getDcrawFilter();
 			rawspeed::CFAColor c = cfa.getColorAt(0, 0);
 		}
 		
@@ -1016,11 +1025,13 @@ SDKGetSourceVideo(
 
 		// make the Premiere buffer
 		assert(sourceVideoRec->inNumFrameFormats == 1);
-		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
+		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
+		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
 		
 		imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
 		
-		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
 				
 		const int width = rawwidth;
 		const int height = rawheight;
@@ -1044,16 +1055,59 @@ SDKGetSourceVideo(
 
 		double maxValue = pow(2.0, 16.0) - 1;
 		double tmp;
+		
+
+		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc2 << "before frame filling 3 " << "\n";
+		abasc2 << "abc" << fileBuffer << "\n";
+		abasc2.close();
+
+		rtengine::RawImage* ri = new rtengine::RawImage();
+		ri->filters = dcraw_filter;
+		rtengine::RawImageSource* rawImageSource = new rtengine::RawImageSource();
+		rawImageSource->ri = ri;
+
+
+		array2D<float>* demosaicSrcData = new array2D<float>(width, height,0U);
+		array2D<float>* red = new array2D<float>(width, height,0U);
+		array2D<float>* green = new array2D<float>(width, height,0U);
+		array2D<float>* blue = new array2D<float>(width, height,0U);
+
+		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc2 << "before frame filling 4 " << "\n";
+		abasc2 << "abc" << fileBuffer << "\n";
+		abasc2.close();
 
 		for (size_t y = 0; y < height; y++) {
 			for (size_t x = 0; x < width; x++) {
-				tmp = dataAs16bit[y*pitch_in_bytes/2 + x] / maxValue;
-				bufFloat[y*width*4+x*4] = tmp;
-				bufFloat[y * width * 4 + x * 4 + 1] = tmp;
-				bufFloat[y * width * 4 + x * 4 + 2] = tmp;
+				tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
+				(*demosaicSrcData)[y][x] = tmp;
+			}
+		}
+
+
+		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
+
+		delete demosaicSrcData;
+
+		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc2 << "before frame filling 5 "  << "\n";
+		abasc2 << "abc" << fileBuffer << "\n";
+		abasc2.close();
+
+		for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
+				bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
+				bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
 				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
 			}
 		}
+
+		delete red, green, blue;
+		delete rawImageSource;
+		delete ri;
+
 		/*
 		for (size_t i = 0; i < 500000; i+=4) {
 			bufFloat[i] = dataAs16bit[i];
@@ -1066,6 +1120,16 @@ SDKGetSourceVideo(
 		}*/
 		//memcpy(bufFloat, data, 4096 * 1000);
 
+		// Initial black and white try:
+		/*for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				tmp = dataAs16bit[y*pitch_in_bytes/2 + x] / maxValue;
+				bufFloat[y*width*4+x*4] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 1] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 2] = tmp;
+				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
+			}
+		}*/
 
 
 		std::ofstream abasc3;

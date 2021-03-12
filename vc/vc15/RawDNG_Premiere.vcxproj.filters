@@ -124,6 +124,15 @@
     <ClInclude Include="..\..\src\amaze\rtengine\mytime.h">
       <Filter>amaze\rtengine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\helperavx.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\helpersse2.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\amaze\rtengine\amaze_demosaic_RT.h">
+      <Filter>amaze\rtengine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
