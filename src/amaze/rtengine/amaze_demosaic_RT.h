@@ -54,14 +54,11 @@ namespace rtengine
 
     class RawImageSource {
     public:
-        void ahd_demosaic();
+        //void ahd_demosaic();
         void amaze_demosaic_RT(int winx, int winy, int winw, int winh, const array2D<float>& rawData, array2D<float>& red, array2D<float>& green, array2D<float>& blue, size_t chunkSize = 1, bool measure = false);//Emil's code for AMaZE
         double initialGain = 1;
         int W, H;
-        array2D<float>& rawData;
-        array2D<float> green;
-        array2D<float> red;
-        array2D<float> blue;
+        //ImageMatrices imatrices;
         void RawImageSource::border_interpolate(int winw, int winh, int lborders, const array2D<float>& rawData, array2D<float>& red, array2D<float>& green, array2D<float>& blue)
         {
             int bord = lborders;

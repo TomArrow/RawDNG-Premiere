@@ -207,7 +207,7 @@ void RawImageSource::ahd_demosaic()
                 }
             }
 
-            if(plistener) {
+            /*if(plistener) {
                 progresscounter++;
 
                 if(progresscounter % 32 == 0) {
@@ -220,15 +220,15 @@ void RawImageSource::ahd_demosaic()
                         plistener->setProgress(progress);
                     }
                 }
-            }
+            }*/
  
         }
     }
     delete [] buffer;
 }
-    if(plistener) {
+    /*if(plistener) {
         plistener->setProgress (1.0);
-    }
+    }*/
 
 }
 #undef TS
