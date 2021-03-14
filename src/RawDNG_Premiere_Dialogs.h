@@ -40,6 +40,7 @@
 #define OPENEXR_PREMIERE_DIALOGS_H
 
 #include <list>
+#include <string>
 
 typedef std::list<std::string> ChannelsList;
 	
