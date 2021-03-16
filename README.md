@@ -1,21 +1,9 @@
-Moved
+RawDNG_Premiere
 =====
 
-This repo has been [moved](http://fnordware.blogspot.com/2018/09/screw-you-microsoft.html) to [GitLab](https://gitlab.com/fnordware/openexrPremiere).
-
-
-openexrPremiere
-===============
-
-This is the OpenEXR plug-in that ships with Adobe Premiere Pro, Adobe Media Encoder, and other Adobe apps. It is also available for download on the fnord software [web site](http://www.fnordware.com/OpenEXR/) as part of the [ProEXR](http://www.fnordware.com/ProEXR/) package, which includes some additional commercial plug-ins.
-
-
-## Written by
-
-[Brendan Bolles](http://github.com/fnordware/)
-
-
+based on and modified from the OpenEXR Premiere plugin by [Brendan Bolles](http://github.com/fnordware/)
+See: https://gitlab.com/fnordware/openexrPremiere
 
 ## License
 
-[BSD](http://opensource.org/licenses/BSD-2-Clause)
+Not yet decided, but the original was BSD.
