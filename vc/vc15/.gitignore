@@ -16,6 +16,9 @@ build/
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+OpenEXR_Premiere/
+RawDNG_Premiere/
+
 # Mono auto generated files
 mono_crash.*
 
