@@ -88,6 +88,9 @@ int rawspeed_get_number_of_processor_cores(){
 using namespace std;
 
 
+static  int callCounter = 0;
+
+
 static const csSDK_int32 RawDNG_ID = 'rDNG';
 
 //extern unsigned int gNumCPUs;
@@ -759,7 +762,7 @@ SDKGetInfo8(
 		abasc4.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
 		ReadFileWrap(fileAccessInfo8->fileref, (void*)fileBuffer, fileSize, &abasc4);
 		SetFilePointer(fileAccessInfo8->fileref, 0, NULL, FILE_BEGIN);
-
+		//abasc4 << "Call counter: " << (callCounter++);
 		abasc4.close();
 
 
@@ -979,6 +982,7 @@ SDKGetSourceVideo(
 		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
 		abasc2 << "before frame filling 2 " << fileSize << "\n";
 		abasc2 << "abc" << fileBuffer << "\n";
+		abasc2 << "Call counter: " << (callCounter++);
 		abasc2.close();
 
 
