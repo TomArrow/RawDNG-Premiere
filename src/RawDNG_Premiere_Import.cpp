@@ -36,6 +36,8 @@
 //
 //------------------------------------------
 
+//#include <intrin.h>
+//#pragma intrinsic(_ReturnAddress)
 
 #include "RawDNG_Premiere_Import.h"
 
@@ -46,10 +48,12 @@
 #include "amaze/rtengine/amaze_demosaic_RT.h"
 
 #include <string>
+#include <map>
 
 #include <stdio.h>
 #include <assert.h>
 
+#include <regex>
 
 // Just for debugging:
 #include <iostream>
@@ -58,6 +62,8 @@
 #ifdef PRMAC_ENV
 	#include <mach/mach.h>
 #endif
+
+//#include <future>
 
 
 int rawspeed_get_number_of_processor_cores(){
@@ -91,6 +97,7 @@ using namespace std;
 static  int callCounter = 0;
 
 
+
 static const csSDK_int32 RawDNG_ID = 'rDNG';
 
 //extern unsigned int gNumCPUs;
@@ -110,6 +117,7 @@ typedef struct
 #endif
 	PrSDKPPixSuite			*PPixSuite;
 	PrSDKTimeSuite			*TimeSuite;
+	csSDK_int32				callCounter;
 } ImporterLocalRec8, *ImporterLocalRec8Ptr, **ImporterLocalRec8H;
 
 
@@ -948,6 +956,403 @@ SDKSetTimeInfo(
 	return err;
 }
 
+typedef  unsigned long ulong;
+
+regex pathregex(R"([\\\/][^\\\/]*?\..*?$)",
+	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
+//regex pathregex(R"(.*?)(\d+)([^\d]*?\..*?$)", // prefix, number and suffix (including extension)
+//regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
+/*
+map<string, map<string, array2D<float>>> cache;
+
+static void renderFile(string folder, string fullPath) {
+
+	//open file
+	std::ifstream infile(fullPath);
+
+	//get length of file
+	infile.seekg(0, std::ios::end);
+	size_t fileSize = infile.tellg();
+	infile.seekg(0, std::ios::beg);
+
+	char* fileBuffer = new char[fileSize];
+
+	//read file
+	infile.read(fileBuffer, fileSize);
+
+	rawspeed::Buffer* map = new rawspeed::Buffer((uint8_t*)fileBuffer, (uint32_t)fileSize);
+
+
+
+	rawspeed::RawParser parser(map);
+	rawspeed::RawDecoder* decoder = parser.getDecoder().release();
+
+	rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
+
+	//decoder->uncorrectedRawValues = true;
+	decoder->decodeRaw();
+	decoder->decodeMetaData(metadata);
+	rawspeed::RawImage raw = decoder->mRaw;
+
+	int components_per_pixel = raw->getCpp();
+	rawspeed::RawImageType type = raw->getDataType();
+	bool is_cfa = raw->isCFA;
+
+	int dcraw_filter = 0;
+	if (true == is_cfa) {
+		rawspeed::ColorFilterArray cfa = raw->cfa;
+		dcraw_filter = cfa.getDcrawFilter();
+		//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
+	}
+
+	unsigned char* data = raw->getData(0, 0);
+	int rawwidth = raw->dim.x;
+	int rawheight = raw->dim.y;
+	int pitch_in_bytes = raw->pitch;
+
+	unsigned int bpp = raw->getBpp();
+
+	// make the Premiere buffer
+	assert(sourceVideoRec->inNumFrameFormats == 1);
+	//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
+	assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
+
+	//imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
+
+	//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+	//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
+
+	const int width = rawwidth;
+	const int height = rawheight;
+
+	assert(frameFormat.inFrameWidth == width);
+	assert(frameFormat.inFrameHeight == height);
+
+	prRect theRect;
+	prSetRect(&theRect, 0, 0, width, height);
+
+	RowbyteType rowBytes = 0;
+	char* buf = NULL;
+
+	//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
+	//ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
+	//ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
+
+	//memset(buf, 255, 4096*1000);
+	float* bufFloat = reinterpret_cast<float*>(buf);
+	uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
+
+	double maxValue = pow(2.0, 16.0) - 1;
+	double tmp;
+
+
+
+	rtengine::RawImage* ri = new rtengine::RawImage();
+	ri->filters = dcraw_filter;
+	rtengine::RawImageSource* rawImageSource = new rtengine::RawImageSource();
+	rawImageSource->ri = ri;
+
+
+	array2D<float>* demosaicSrcData = new array2D<float>(width, height, 0U);
+	array2D<float>* red = new array2D<float>(width, height, 0U);
+	array2D<float>* green = new array2D<float>(width, height, 0U);
+	array2D<float>* blue = new array2D<float>(width, height, 0U);
+
+
+	for (size_t y = 0; y < height; y++) {
+		for (size_t x = 0; x < width; x++) {
+			tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
+			(*demosaicSrcData)[y][x] = tmp;
+		}
+	}
+
+
+	rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
+
+	delete demosaicSrcData;
+
+
+	for (size_t y = 0; y < height; y++) {
+		for (size_t x = 0; x < width; x++) {
+			bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
+			bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
+			bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
+			bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
+		}
+	}
+
+	delete red, green, blue;
+	delete rawImageSource;
+	delete ri;
+	delete map;
+	delete decoder;
+	delete[] fileBuffer;
+}
+*/
+/*
+static class CalculatingFrame {
+	const double maxValue = pow(2.0, 16.0) - 1;
+	array2D<float>* red;
+	array2D<float>* green;
+	array2D<float>* blue;
+	int width;
+	int height;
+	std::thread* worker;
+	std::promise<bool> finishPromise;
+	std::future<bool> finishFuture = finishPromise.get_future();
+	bool finished;
+	bool success;
+	std::string path;
+
+	void doProcess() {
+		rawspeed::FileReader reader(path.c_str());
+		std::unique_ptr<const rawspeed::Buffer> map = NULL;
+		try {
+			map = reader.readFile();
+		}
+		catch (rawspeed::IOException& e) {
+			// Handle errors
+			finishPromise.set_value(false);
+		}
+		//rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
+		//rawspeed::Buffer* map = new rawspeed::f;
+
+		rawspeed::RawParser parser(map.get());
+		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
+
+		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
+
+		//decoder->uncorrectedRawValues = true;
+		decoder->decodeRaw();
+		decoder->decodeMetaData(metadata);
+		rawspeed::RawImage raw = decoder->mRaw;
+
+		int components_per_pixel = raw->getCpp();
+		rawspeed::RawImageType type = raw->getDataType();
+		bool is_cfa = raw->isCFA;
+
+		int dcraw_filter = 0;
+		if (true == is_cfa) {
+			rawspeed::ColorFilterArray cfa = raw->cfa;
+			dcraw_filter = cfa.getDcrawFilter();
+			//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
+		}
+
+		unsigned char* data = raw->getData(0, 0);
+		int rawwidth = raw->dim.x;
+		int rawheight = raw->dim.y;
+		int pitch_in_bytes = raw->pitch;
+
+		unsigned int bpp = raw->getBpp();
+
+		// make the Premiere buffer
+		assert(sourceVideoRec->inNumFrameFormats == 1);
+		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
+		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
+
+		//imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
+
+		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
+
+		width = rawwidth;
+		height = rawheight;
+
+		//assert(frameFormat.inFrameWidth == width);
+		//assert(frameFormat.inFrameHeight == height);
+
+		prRect theRect;
+		prSetRect(&theRect, 0, 0, width, height);
+
+		RowbyteType rowBytes = 0;
+		char* buf = NULL;
+
+		//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
+		//ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
+		//ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
+
+		//memset(buf, 255, 4096*1000);
+		float* bufFloat = reinterpret_cast<float*>(buf);
+		uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
+
+		double maxValue = pow(2.0, 16.0) - 1;
+		double tmp;
+
+		rtengine::RawImage* ri = new rtengine::RawImage();
+		ri->filters = dcraw_filter;
+		rtengine::RawImageSource* rawImageSource = new rtengine::RawImageSource();
+		rawImageSource->ri = ri;
+
+
+		array2D<float>* demosaicSrcData = new array2D<float>(width, height, 0U);
+		array2D<float>* red = new array2D<float>(width, height, 0U);
+		array2D<float>* green = new array2D<float>(width, height, 0U);
+		array2D<float>* blue = new array2D<float>(width, height, 0U);
+
+
+		for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
+				(*demosaicSrcData)[y][x] = tmp;
+			}
+		}
+
+
+		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
+
+		delete demosaicSrcData;
+
+		for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
+				bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
+				bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
+				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
+			}
+		}
+
+		delete red, green, blue;
+		delete rawImageSource;
+		delete ri;
+
+		delete decoder;
+		finishPromise.set_value(true);
+	}
+
+	void waitForFinish() {
+		if (!finished) {
+			success = finishFuture.get();
+			finished = true;
+		}
+	}
+public:
+	CalculatingFrame(std::string pathA) {
+		path = pathA;
+		success = false;
+		worker = new std::thread(&CalculatingFrame::doProcess,this);
+	}
+	int getWidth() {
+		waitForFinish();
+		return width;
+	}
+	int getHeight() {
+		waitForFinish();
+		return width;
+	}
+	void getFrame(float* outputBuffer) {
+		waitForFinish();
+		if (success) {
+			for (size_t y = 0; y < height; y++) {
+				for (size_t x = 0; x < width; x++) {
+					outputBuffer[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
+					outputBuffer[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
+					outputBuffer[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
+					outputBuffer[y * width * 4 + x * 4 + 3] = 1.0f;
+				}
+			}
+		}
+	}
+	~CalculatingFrame() {
+		delete worker;
+		if (success) {
+			delete red;
+			delete green;
+			delete blue;
+		}
+	}
+};
+*/
+
+/*
+static prMALError 
+SDKGetSourceVideo(
+	imStdParms			*stdparms, 
+	imFileRef			fileRef, 
+	imSourceVideoRec	*sourceVideoRec)
+{
+	prMALError		result		= malNoError;
+
+	// Get the privateData handle you stored in imGetInfo
+	ImporterLocalRec8H ldataH = reinterpret_cast<ImporterLocalRec8H>(sourceVideoRec->inPrivateData);
+	ImporterLocalRec8Ptr ldataP = *ldataH;
+	ImporterPrefs *prefs = reinterpret_cast<ImporterPrefs *>(sourceVideoRec->prefs);
+	
+
+	PPixHand temp_ppix = NULL;
+
+	std::ofstream abasc;
+	abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+	abasc << "before frame filling" << "\n";
+	abasc.close();
+
+	try
+	{
+		unsigned long fileSize = GetFileSize(fileRef, NULL);
+
+		TCHAR filename[MAX_PATH + 1];
+		ulong pathLength = GetFinalPathNameByHandleA(fileRef, filename, MAX_PATH + 1, 0);
+
+		std::string pathString = filename;
+
+		CalculatingFrame calcFrame(pathString);
+
+		// make the Premiere buffer
+		assert(sourceVideoRec->inNumFrameFormats == 1);
+		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
+		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
+
+		imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
+
+		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
+		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
+
+		const int width = calcFrame.getWidth();
+		const int height = calcFrame.getHeight();
+
+		assert(frameFormat.inFrameWidth == width);
+		assert(frameFormat.inFrameHeight == height);
+
+		prRect theRect;
+		prSetRect(&theRect, 0, 0, width, height);
+
+		RowbyteType rowBytes = 0;
+		char* buf = NULL;
+
+		ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
+		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
+		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
+
+		float* bufFloat = reinterpret_cast<float*>(buf);
+
+		calcFrame.getFrame(bufFloat);
+
+
+		
+	}
+	catch (const std::exception& e) {
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "ERROR" << e.what() << "\n";
+		abasc.close();
+	}
+	catch(...)
+	{
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "ERROR GENERIC" <<  "\n";
+		abasc.close();
+		result = malUnknownError;
+	}
+	
+	
+	if(temp_ppix)
+		ldataP->PPixSuite->Dispose(temp_ppix);
+	
+
+	return result;
+}
+*/
+// Old version without MT
 
 static prMALError 
 SDKGetSourceVideo(
@@ -976,14 +1381,40 @@ SDKGetSourceVideo(
 		// read the file
 		unsigned long fileSize = GetFileSize(fileRef,NULL);
 
+		TCHAR filename[MAX_PATH + 1];
+		ulong pathLength = GetFinalPathNameByHandleA(fileRef, filename, MAX_PATH + 1,0);
+
+		string path =  string(filename);
+		// Path looks like this: \\?\D:\path\path2\filename_000071.dng
+
 		uint8_t *fileBuffer = new uint8_t[fileSize];
 
 		std::ofstream abasc2;
 		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
 		abasc2 << "before frame filling 2 " << fileSize << "\n";
 		abasc2 << "abc" << fileBuffer << "\n";
-		abasc2 << "Call counter: " << (callCounter++);
+		abasc2 << "path" << path << "\n";
+		abasc2 << "Call counter: " << (callCounter++) << "\n";
+		abasc2 << "Imported ID: " << (ldataP->importerID) << "\n";
+		abasc2 << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
+
+
+		
+			//regex_constants::icase | regex_constants::optimize | regex_constants::extended);
+		if (regex_search(path	, pathregex)) {
+			abasc2 << "regex found!";
+			auto words_begin =
+				std::sregex_iterator(path.begin(), path.end(), pathregex);
+			auto words_end = std::sregex_iterator();
+			for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+				std::smatch match = *i;
+				std::string match_str = match.str();
+				abasc2 << match_str;
+			}
+		}
+
 		abasc2.close();
+
 
 
 
@@ -1017,7 +1448,7 @@ SDKGetSourceVideo(
 		if (true == is_cfa) {
 			rawspeed::ColorFilterArray cfa = raw->cfa;
 			dcraw_filter = cfa.getDcrawFilter();
-			rawspeed::CFAColor c = cfa.getColorAt(0, 0);
+			//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
 		}
 		
 		unsigned char* data = raw->getData(0, 0);
@@ -1112,28 +1543,7 @@ SDKGetSourceVideo(
 		delete rawImageSource;
 		delete ri;
 
-		/*
-		for (size_t i = 0; i < 500000; i+=4) {
-			bufFloat[i] = dataAs16bit[i];
-			bufFloat[i+1] = dataAs16bit[i];
-			bufFloat[i+2] = dataAs16bit[i];
-			bufFloat[i+3] = 1.0f;
-		}
-		for (size_t i = 500000; i < 900000; ++i) {
-			bufFloat[i] = 1.0f;
-		}*/
-		//memcpy(bufFloat, data, 4096 * 1000);
-
-		// Initial black and white try:
-		/*for (size_t y = 0; y < height; y++) {
-			for (size_t x = 0; x < width; x++) {
-				tmp = dataAs16bit[y*pitch_in_bytes/2 + x] / maxValue;
-				bufFloat[y*width*4+x*4] = tmp;
-				bufFloat[y * width * 4 + x * 4 + 1] = tmp;
-				bufFloat[y * width * 4 + x * 4 + 2] = tmp;
-				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
-			}
-		}*/
+		
 
 
 		std::ofstream abasc3;
@@ -1171,7 +1581,7 @@ SDKGetSourceVideo(
 	return result;
 }
 
-
+//*/
 
 PREMPLUGENTRY DllExport xImportEntry (
 	csSDK_int32		selector, 
