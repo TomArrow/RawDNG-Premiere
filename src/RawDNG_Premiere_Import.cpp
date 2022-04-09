@@ -36,8 +36,8 @@
 //
 //------------------------------------------
 
-//#include <intrin.h>
-//#pragma intrinsic(_ReturnAddress)
+#include <intrin.h>
+#pragma intrinsic(_ReturnAddress)
 
 #include "RawDNG_Premiere_Import.h"
 
@@ -63,7 +63,7 @@
 	#include <mach/mach.h>
 #endif
 
-//#include <future>
+#include <future>
 
 
 int rawspeed_get_number_of_processor_cores(){
@@ -958,10 +958,10 @@ SDKSetTimeInfo(
 
 typedef  unsigned long ulong;
 
-regex pathregex(R"([\\\/][^\\\/]*?\..*?$)",
+//regex pathregex(R"([\\\/][^\\\/]*?\..*?$)",
+//	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
+regex pathregex(R"((.*?)(\d+)([^\d]*?\..*?$))", // prefix, number and suffix (including extension)
 	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
-//regex pathregex(R"(.*?)(\d+)([^\d]*?\..*?$)", // prefix, number and suffix (including extension)
-//regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
 /*
 map<string, map<string, array2D<float>>> cache;
 
@@ -1089,7 +1089,7 @@ static void renderFile(string folder, string fullPath) {
 	delete[] fileBuffer;
 }
 */
-/*
+
 static class CalculatingFrame {
 	const double maxValue = pow(2.0, 16.0) - 1;
 	array2D<float>* red;
@@ -1105,6 +1105,11 @@ static class CalculatingFrame {
 	std::string path;
 
 	void doProcess() {
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before read file" << "\n";
+		abasc.close();
+
 		rawspeed::FileReader reader(path.c_str());
 		std::unique_ptr<const rawspeed::Buffer> map = NULL;
 		try {
@@ -1113,9 +1118,14 @@ static class CalculatingFrame {
 		catch (rawspeed::IOException& e) {
 			// Handle errors
 			finishPromise.set_value(false);
+			return;
 		}
 		//rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
 		//rawspeed::Buffer* map = new rawspeed::f;
+
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before parse" << "\n";
+		abasc.close();
 
 		rawspeed::RawParser parser(map.get());
 		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
@@ -1146,9 +1156,9 @@ static class CalculatingFrame {
 		unsigned int bpp = raw->getBpp();
 
 		// make the Premiere buffer
-		assert(sourceVideoRec->inNumFrameFormats == 1);
+		//assert(sourceVideoRec->inNumFrameFormats == 1);
 		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
-		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
+		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
 
 		//imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
 
@@ -1165,18 +1175,22 @@ static class CalculatingFrame {
 		prSetRect(&theRect, 0, 0, width, height);
 
 		RowbyteType rowBytes = 0;
-		char* buf = NULL;
+		//char* buf = NULL;
 
 		//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
 		//ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
 		//ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
 
 		//memset(buf, 255, 4096*1000);
-		float* bufFloat = reinterpret_cast<float*>(buf);
+		//float* bufFloat = reinterpret_cast<float*>(buf);
 		uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
 
 		double maxValue = pow(2.0, 16.0) - 1;
 		double tmp;
+
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before rawimage" << "\n";
+		abasc.close();
 
 		rtengine::RawImage* ri = new rtengine::RawImage();
 		ri->filters = dcraw_filter;
@@ -1185,9 +1199,12 @@ static class CalculatingFrame {
 
 
 		array2D<float>* demosaicSrcData = new array2D<float>(width, height, 0U);
-		array2D<float>* red = new array2D<float>(width, height, 0U);
-		array2D<float>* green = new array2D<float>(width, height, 0U);
-		array2D<float>* blue = new array2D<float>(width, height, 0U);
+		//array2D<float>* red = new array2D<float>(width, height, 0U);
+		//array2D<float>* green = new array2D<float>(width, height, 0U);
+		//<float>* blue = new array2D<float>(width, height, 0U);
+		red = new array2D<float>(width, height, 0U);
+		green = new array2D<float>(width, height, 0U);
+		blue = new array2D<float>(width, height, 0U);
 
 
 		for (size_t y = 0; y < height; y++) {
@@ -1202,16 +1219,20 @@ static class CalculatingFrame {
 
 		delete demosaicSrcData;
 
-		for (size_t y = 0; y < height; y++) {
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before deleting" << "\n";
+		abasc.close();
+
+		/*for (size_t y = 0; y < height; y++) {
 			for (size_t x = 0; x < width; x++) {
 				bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
 				bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
 				bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
 				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
 			}
-		}
+		}*/
 
-		delete red, green, blue;
+		//delete red, green, blue;
 		delete rawImageSource;
 		delete ri;
 
@@ -1223,12 +1244,17 @@ static class CalculatingFrame {
 		if (!finished) {
 			success = finishFuture.get();
 			finished = true;
+			std::ofstream abasc;
+			abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+			abasc << "finished " << success << "\n";
+			abasc.close();
 		}
 	}
 public:
 	CalculatingFrame(std::string pathA) {
 		path = pathA;
 		success = false;
+		finished = false;
 		worker = new std::thread(&CalculatingFrame::doProcess,this);
 	}
 	int getWidth() {
@@ -1253,17 +1279,28 @@ public:
 		}
 	}
 	~CalculatingFrame() {
+		std::ofstream abasc;
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before delete worker " << success << "\n";
+		abasc.close();
+		worker->join();
 		delete worker;
 		if (success) {
+			abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+			abasc << "before delete red green blue " << success << "\n";
+			abasc.close();
 			delete red;
 			delete green;
 			delete blue;
+			abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+			abasc << "after delete red green blue " << success << "\n";
+			abasc.close(); 
 		}
 	}
 };
-*/
 
-/*
+
+
 static prMALError 
 SDKGetSourceVideo(
 	imStdParms			*stdparms, 
@@ -1296,6 +1333,10 @@ SDKGetSourceVideo(
 
 		CalculatingFrame calcFrame(pathString);
 
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before buffer making" << "\n";
+		abasc.close();
+
 		// make the Premiere buffer
 		assert(sourceVideoRec->inNumFrameFormats == 1);
 		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
@@ -1306,8 +1347,17 @@ SDKGetSourceVideo(
 		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
 		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
 
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before get dimensions" << "\n";
+		abasc.close();
+
 		const int width = calcFrame.getWidth();
 		const int height = calcFrame.getHeight();
+
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "width" << width << "\n";
+		abasc << "height" << height << "\n";
+		abasc.close();
 
 		assert(frameFormat.inFrameWidth == width);
 		assert(frameFormat.inFrameHeight == height);
@@ -1318,6 +1368,10 @@ SDKGetSourceVideo(
 		RowbyteType rowBytes = 0;
 		char* buf = NULL;
 
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "before getpixels" << "\n";
+		abasc.close();
+
 		ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
 		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
 		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
@@ -1326,7 +1380,9 @@ SDKGetSourceVideo(
 
 		calcFrame.getFrame(bufFloat);
 
-
+		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+		abasc << "after getframe" << "\n";
+		abasc.close();
 		
 	}
 	catch (const std::exception& e) {
@@ -1351,9 +1407,9 @@ SDKGetSourceVideo(
 
 	return result;
 }
-*/
-// Old version without MT
 
+// Old version without MT
+/*
 static prMALError 
 SDKGetSourceVideo(
 	imStdParms			*stdparms, 
