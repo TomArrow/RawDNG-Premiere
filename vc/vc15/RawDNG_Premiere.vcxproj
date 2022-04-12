@@ -108,7 +108,7 @@
       <AdditionalOptions>-openmp:experimental</AdditionalOptions>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)RawDNG.prm</OutputFile>
