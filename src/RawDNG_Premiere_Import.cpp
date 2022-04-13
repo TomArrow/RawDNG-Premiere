@@ -67,6 +67,7 @@
 #include <mutex>
 #include <iomanip>
 
+typedef  unsigned long ulong;
 
 int rawspeed_get_number_of_processor_cores(){
 	int numberOfCores = 1;
@@ -104,6 +105,9 @@ static bool inited = false;
 
 #define BUFFER_TIMEOUT 30.0
 
+regex pathregex(R"((.*?)(\d+)([^\d]*?\..*?$))", // prefix, number and suffix (including extension)
+	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
+
 static class CalculatingFrame {
 	const double maxValue = pow(2.0, 16.0) - 1;
 	array2D<float>* red;
@@ -118,11 +122,23 @@ static class CalculatingFrame {
 	bool success;
 	std::string path;
 	std::chrono::system_clock::time_point startTime;
+	float* outputBuffer;
+	int outputBufferLength;
 
 	void doProcess() {
 
 		abasc << "before read file" << "\n";
 		abasc.flush();
+
+		// Check if file even exists
+		if (FILE* file = fopen(path.c_str(), "r")) {
+			fclose(file); // All good
+		}
+		else {
+			abasc << "file doesnt exist, thats ok tho " << path << "\n";
+			finishPromise.set_value(false);
+			return; // Yeah no. Not even gonna try.
+		}
 
 		rawspeed::FileReader reader(path.c_str());
 		std::unique_ptr<const rawspeed::Buffer> map = NULL;
@@ -130,6 +146,7 @@ static class CalculatingFrame {
 			map = reader.readFile();
 		}
 		catch (rawspeed::IOException& e) {
+			abasc << "file read error gg " << path << "\n";
 			// Handle errors
 			finishPromise.set_value(false);
 			return;
@@ -160,6 +177,7 @@ static class CalculatingFrame {
 			dcraw_filter = cfa.getDcrawFilter();
 			//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
 		}
+		abasc << "dcraw filter " << dcraw_filter << "\n";
 
 		unsigned char* data = raw->getData(0, 0);
 		int rawwidth = raw->dim.x;
@@ -184,10 +202,10 @@ static class CalculatingFrame {
 		//assert(frameFormat.inFrameWidth == width);
 		//assert(frameFormat.inFrameHeight == height);
 
-		prRect theRect;
-		prSetRect(&theRect, 0, 0, width, height);
+		//prRect theRect;
+		//prSetRect(&theRect, 0, 0, width, height);
 
-		RowbyteType rowBytes = 0;
+		//RowbyteType rowBytes = 0;
 		//char* buf = NULL;
 
 		//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
@@ -227,6 +245,11 @@ static class CalculatingFrame {
 		}
 
 
+		delete rawImageSource;
+		delete ri;
+
+		delete decoder;
+
 		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
 
 		delete demosaicSrcData;
@@ -234,20 +257,22 @@ static class CalculatingFrame {
 		abasc << "before deleting" << "\n";
 		abasc.flush();
 
-		/*for (size_t y = 0; y < height; y++) {
+		outputBufferLength = width * height*4;
+		outputBuffer = new float[outputBufferLength];
+
+		for (size_t y = 0; y < height; y++) {
 			for (size_t x = 0; x < width; x++) {
-				bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
+				outputBuffer[y * width * 4 + x * 4] = (float)( (*blue)[y][x] / maxValue);
+				outputBuffer[y * width * 4 + x * 4 + 1] = (float)((*green)[y][x] / maxValue);
+				outputBuffer[y * width * 4 + x * 4 + 2] = (float)((*red)[y][x] / maxValue);
+				outputBuffer[y * width * 4 + x * 4 + 3] = 1.0f;
 			}
-		}*/
+		}
 
-		//delete red, green, blue;
-		delete rawImageSource;
-		delete ri;
+		delete red;
+		delete green;
+		delete blue;
 
-		delete decoder;
 		finishPromise.set_value(true);
 	}
 
@@ -282,19 +307,20 @@ public:
 	}
 	int getHeight() {
 		waitForFinish();
-		return width;
+		return height;
 	}
-	void getFrame(float* outputBuffer) {
+	void getFrame(float* outputBufferOut) {
 		waitForFinish();
 		if (success) {
-			for (size_t y = 0; y < height; y++) {
+			memcpy(outputBufferOut,outputBuffer,outputBufferLength*sizeof(float));
+			/*for (size_t y = 0; y < height; y++) {
 				for (size_t x = 0; x < width; x++) {
 					outputBuffer[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
 					outputBuffer[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
 					outputBuffer[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
 					outputBuffer[y * width * 4 + x * 4 + 3] = 1.0f;
 				}
-			}
+			}*/
 		}
 	}
 	~CalculatingFrame() {
@@ -305,9 +331,7 @@ public:
 		if (success) {
 			abasc << "before delete red green blue " << success << "\n";
 			abasc.flush();
-			delete red;
-			delete green;
-			delete blue;
+			delete[] outputBuffer;
 			abasc << "after delete red green blue " << success << "\n";
 			abasc.flush();
 		}
@@ -960,6 +984,116 @@ void ReadFileWrap(HANDLE fileRef, void* fileBuffer, unsigned long fileSize, std:
 	}
 }
 
+
+static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustDelete) {
+
+	CalculatingFrame* calcFrame;
+	// Caching stuff
+	abasc << "test!24y354yu534th\n";
+	abasc.flush();
+	if (regex_search(pathString, pathregex)) {
+		abasc << "regex found!";
+		abasc.flush();
+		auto words_begin =
+			std::sregex_iterator(pathString.begin(), pathString.end(), pathregex);
+		auto words_end = std::sregex_iterator();
+		if (words_begin != words_end && (*words_begin).size() >= 4) {// Found base, number and extension. 
+
+			std::smatch match = *words_begin;
+			*mustDelete = false;
+			abasc << match[1].str() << " ### " << match[2].str() << " ### " << match[3].str() << "\n";
+			abasc.flush();
+
+			// Attempt some caching.
+			// We want to calculate one frame for each cpu core.
+			int numToCache = gNumCPUs - 1; // Single CPU would get no caching. 2 core would get 1 in advance, 4 core would get 3 in advance etc.
+			std::string base = match[1].str();
+			std::string number = match[2].str();
+			std::string extension = match[3].str();
+
+			std::stringstream key;
+			key << base << extension;
+			std::string keyString = key.str();
+
+			int numInt = atoi(number.c_str());
+
+			std::lock_guard<std::mutex> lock(bufferCollectionMutex); // Lock the list so if there's ever any multiprocessing done by AE, we reduce chance of conflict
+
+
+			abasc << "Key string: " << keyString << "\n";
+			abasc.flush();
+
+			bufferCollection_t* bufferCollectionHere = &bufferCollection[keyString];
+
+			abasc << "Buffer collection lenght before: " << bufferCollectionHere->size() << "\n";
+			abasc.flush();
+
+			// Create formatting string for numbers for new files.
+			int numberLength = number.size();
+
+			for (int i = 0; i <= numToCache; i++) {
+				// First check if its already being calculated/if an entry exists
+				bufferCollectionIterator findResult = bufferCollectionHere->find(numInt + i);
+				if (findResult == bufferCollectionHere->end()) {
+					// Doesn't exist yet. Let's do this.
+					std::stringstream assumedAheadFilename;
+					assumedAheadFilename << base << std::setfill('0') << std::setw(numberLength) << (numInt + i) << extension;
+					abasc << "Attempting to buffer " << assumedAheadFilename.str() << "\n";
+					abasc.flush();
+					bufferCollectionHere->emplace(numInt + i, assumedAheadFilename.str());
+				}
+				else {
+					findResult->second.refreshStartTime();
+					abasc << (numInt + i) << "already buffered, refreshing" << "\n";
+					abasc.flush();
+				}
+
+			}
+
+			abasc << "clearing stuff now " << "\n";
+			abasc.flush();
+
+			// Now iterate through the entire buffer collection and delete any elements that are too old/too far ahead/not needed etc.
+			for (globalBufferCollectionIterator itOuter = bufferCollection.begin(); itOuter != bufferCollection.end(); itOuter++) {
+				bufferCollection_t* bufferCollectionLocal = &itOuter->second;
+				for (bufferCollectionIterator it = bufferCollectionLocal->begin(); it != bufferCollectionLocal->end();) {
+					bufferCollectionIterator tmpIt = it;
+					it++;
+					// How we manage deleting stuff of this particular file we are handling rn
+					if (bufferCollectionLocal == bufferCollectionHere && tmpIt->first < numInt || tmpIt->first > numInt + numToCache) { // Too far behind or too far ahead. Get rid of it to free up memory.
+						abasc << "Deleting here buffer item " << tmpIt->first << "\n";
+						abasc.flush();
+						bufferCollectionLocal->erase(tmpIt);
+					}
+					else if (bufferCollectionLocal != bufferCollectionHere && tmpIt->second.getAgeInSeconds() > BUFFER_TIMEOUT) {
+						abasc << "Deleting buffer item (too old) " << tmpIt->first << "\n";
+						abasc.flush();
+						bufferCollectionLocal->erase(tmpIt);
+					}
+				}
+			}
+
+			// Save current frame CalculatingFrame reference into calcFrame pointer.
+			abasc << "Before referencing current: " << bufferCollectionHere->size() << "\n";
+			calcFrame = &bufferCollectionHere->find(numInt)->second; // Wow this looks ugly haha. Pretty simple tho really. Just getting a pointer to that specific element in the map.
+
+			abasc << "Buffer collection lenght after: " << bufferCollectionHere->size() << "\n";
+			abasc.flush();
+		}
+		else {
+			*mustDelete = true;// Since we are not dealing with a sequence (or can't detect its logic), we won't be doing any caching or persisting across multiple frames, so the CalculatingFrame must be deleted after calculation in this function call.
+
+			calcFrame = new CalculatingFrame(pathString);
+		}
+	}
+
+	//abasc << "Buffer collection lenght after: " << ldataP->bufferCollection->size() << "\n";
+	//abasc << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
+	//abasc.flush();
+	return calcFrame;
+}
+
+
 prMALError 
 SDKGetInfo8(
 	imStdParms			*stdParms, 
@@ -1006,35 +1140,49 @@ SDKGetInfo8(
 	{
 		unsigned long fileSize = GetFileSize(fileAccessInfo8->fileref, NULL);
 
-		uint8_t* fileBuffer = new uint8_t[fileSize];
+		//uint8_t* fileBuffer = new uint8_t[fileSize];
 
 
-		ReadFileWrap(fileAccessInfo8->fileref, (void*)fileBuffer, fileSize, &abasc);
-		SetFilePointer(fileAccessInfo8->fileref, 0, NULL, FILE_BEGIN);
+		//ReadFileWrap(fileAccessInfo8->fileref, (void*)fileBuffer, fileSize, &abasc);
+		//SetFilePointer(fileAccessInfo8->fileref, 0, NULL, FILE_BEGIN);
 		//abasc4 << "Call counter: " << (callCounter++);
 
+		//unsigned long fileSize = GetFileSize(fileAccessInfo8->fileref, NULL);
+
+		TCHAR filename[MAX_PATH + 1];
+		ulong pathLength = GetFinalPathNameByHandleA(fileAccessInfo8->fileref, filename, MAX_PATH + 1, 0);
+
+		std::string pathString = filename;
+
+		CalculatingFrame* calcFrame;
+		bool mustDelete = false;
+		calcFrame = getCalculatingFrame(pathString, &mustDelete);
+
+				
+		//rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
+
 
 		
-		rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
+		//rawspeed::RawParser parser(map);
+		//rawspeed::RawDecoder* decoder = parser.getDecoder().release();
 
+		//rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
 
-		
-		rawspeed::RawParser parser(map);
-		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
+		//decoder->decodeRaw();
+		//decoder->decodeMetaData(metadata);
+		//rawspeed::RawImage raw = decoder->mRaw;
 
-		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
-
-		decoder->decodeRaw();
-		decoder->decodeMetaData(metadata);
-		rawspeed::RawImage raw = decoder->mRaw;
-
-		int rawwidth = raw->dim.x;
-		int rawheight = raw->dim.y;
+		int rawwidth = calcFrame->getWidth();//raw->dim.x;
+		int rawheight = calcFrame->getHeight();//raw->dim.y;
 		//const csSDK_int32 width = rawwidth;
 		//const csSDK_int32 height = rawheight;
-		delete map;
-		delete decoder;
-		delete[] fileBuffer;
+		//delete map;
+		//delete decoder;
+		//delete[] fileBuffer;
+
+		if (mustDelete) {
+			delete calcFrame;
+		}
 		
 		const csSDK_int32 width = rawwidth;
 		const csSDK_int32 height = rawheight;
@@ -1196,12 +1344,10 @@ SDKSetTimeInfo(
 	return err;
 }
 
-typedef  unsigned long ulong;
 
 //regex pathregex(R"([\\\/][^\\\/]*?\..*?$)",
 //	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
-regex pathregex(R"((.*?)(\d+)([^\d]*?\..*?$))", // prefix, number and suffix (including extension)
-	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
+
 /*
 map<string, map<string, array2D<float>>> cache;
 
@@ -1330,113 +1476,6 @@ static void renderFile(string folder, string fullPath) {
 }
 */
 
-
-static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustDelete) {
-
-	CalculatingFrame* calcFrame;
-	// Caching stuff
-	abasc << "test!24y354yu534th\n";
-	abasc.flush();
-	if (regex_search(pathString, pathregex)) {
-		abasc << "regex found!";
-		abasc.flush();
-		auto words_begin =
-			std::sregex_iterator(pathString.begin(), pathString.end(), pathregex);
-		auto words_end = std::sregex_iterator();
-		if (words_begin != words_end && (*words_begin).size() >= 4) {// Found base, number and extension. 
-
-			std::smatch match = *words_begin;
-			*mustDelete = false;
-			abasc << match[1].str() << " ### " << match[2].str() << " ### " << match[3].str() << "\n";
-			abasc.flush();
-
-			// Attempt some caching.
-			// We want to calculate one frame for each cpu core.
-			int numToCache = gNumCPUs - 1; // Single CPU would get no caching. 2 core would get 1 in advance, 4 core would get 3 in advance etc.
-			std::string base = match[1].str();
-			std::string number = match[2].str();
-			std::string extension = match[3].str();
-
-			std::stringstream key;
-			key << base << extension;
-			std::string keyString = key.str();
-
-			int numInt = atoi(number.c_str());
-
-			std::lock_guard<std::mutex> lock(bufferCollectionMutex); // Lock the list so if there's ever any multiprocessing done by AE, we reduce chance of conflict
-
-
-			abasc << "Key string: " << keyString << "\n";
-			abasc.flush();
-
-			bufferCollection_t* bufferCollectionHere = &bufferCollection[keyString];
-
-			abasc << "Buffer collection lenght before: " << bufferCollectionHere->size() << "\n";
-			abasc.flush();
-
-			// Create formatting string for numbers for new files.
-			int numberLength = number.size();
-
-			for (int i = 0; i <= numToCache; i++) {
-				// First check if its already being calculated/if an entry exists
-				bufferCollectionIterator findResult = bufferCollectionHere->find(numInt + i);
-				if (findResult == bufferCollectionHere->end()) {
-					// Doesn't exist yet. Let's do this.
-					std::stringstream assumedAheadFilename;
-					assumedAheadFilename << base << std::setfill('0') << std::setw(numberLength) << (numInt + i) << extension;
-					abasc << "Attempting to buffer " << assumedAheadFilename.str() << "\n";
-					abasc.flush();
-					bufferCollectionHere->emplace(numInt + i, assumedAheadFilename.str());
-				}
-				else {
-					findResult->second.refreshStartTime();
-					abasc << (numInt + i) << "already buffered, refreshing" << "\n";
-					abasc.flush();
-				}
-
-			}
-
-			abasc << "clearing stuff now " << "\n";
-			abasc.flush();
-
-			// Now iterate through the entire buffer collection and delete any elements that are too old/too far ahead/not needed etc.
-			for (globalBufferCollectionIterator itOuter = bufferCollection.begin(); itOuter != bufferCollection.end(); itOuter++) {
-				bufferCollection_t* bufferCollectionLocal = &itOuter->second;
-				for (bufferCollectionIterator it = bufferCollectionLocal->begin(); it != bufferCollectionLocal->end();) {
-					bufferCollectionIterator tmpIt = it;
-					it++;
-					// How we manage deleting stuff of this particular file we are handling rn
-					if (bufferCollectionLocal == bufferCollectionHere && tmpIt->first < numInt || tmpIt->first > numInt + numToCache) { // Too far behind or too far ahead. Get rid of it to free up memory.
-						abasc << "Deleting here buffer item " << tmpIt->first << "\n";
-						abasc.flush();
-						bufferCollectionLocal->erase(tmpIt);
-					}
-					else if (bufferCollectionLocal != bufferCollectionHere && tmpIt->second.getAgeInSeconds() > BUFFER_TIMEOUT) {
-						abasc << "Deleting buffer item (too old) " << tmpIt->first << "\n";
-						abasc.flush();
-						bufferCollectionLocal->erase(tmpIt);
-					}
-				}
-			}
-
-			// Save current frame CalculatingFrame reference into calcFrame pointer.
-			abasc << "Before referencing current: " << bufferCollectionHere->size() << "\n";
-			calcFrame = &bufferCollectionHere->find(numInt)->second; // Wow this looks ugly haha. Pretty simple tho really. Just getting a pointer to that specific element in the map.
-
-			abasc << "Buffer collection lenght after: " << bufferCollectionHere->size() << "\n";
-			abasc.flush();
-		}
-		else {
-			*mustDelete = true;// Since we are not dealing with a sequence (or can't detect its logic), we won't be doing any caching or persisting across multiple frames, so the CalculatingFrame must be deleted after calculation in this function call.
-
-			calcFrame = new CalculatingFrame(pathString);
-		}
-	}
-
-	//abasc << "Buffer collection lenght after: " << ldataP->bufferCollection->size() << "\n";
-	//abasc << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
-	abasc.flush();
-}
 
 
 static prMALError 
