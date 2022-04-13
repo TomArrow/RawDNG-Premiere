@@ -110,7 +110,7 @@ static bool inited = false;
 
 #define BUFFER_TIMEOUT 30.0
 
-regex pathregex(R"((.*?)(\d+)([^\d]*?\..*?$))", // prefix, number and suffix (including extension)
+regex pathregex(R"((.*?)(\d+)([^\d]*?\.[^.]*?$))", // prefix, number and suffix (including extension)
 	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
 
 static class CalculatingFrame {
@@ -389,7 +389,7 @@ SDKInit(
 {
 
 
-	abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
+	abasc.open("C:/tmptest/blah.txt", std::ios::out | std::ios::app);
 	inited = true;
 
 	PrSDKAppInfoSuite *appInfoSuite = NULL;

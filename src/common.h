@@ -1,6 +1,7 @@
 #pragma once
 
 
+#define DEBUGOUTPUT
 
 #ifdef DEBUGOUTPUT
 extern std::ofstream abasc;
