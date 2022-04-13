@@ -99,7 +99,7 @@ using namespace std;
 
 static  int callCounter = 0;
 
-static std::ofstream abasc;
+std::ofstream abasc;
 
 static bool inited = false;
 
@@ -245,13 +245,13 @@ static class CalculatingFrame {
 		}
 
 
-		delete rawImageSource;
-		delete ri;
 
 		delete decoder;
 
 		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
 
+		delete ri;
+		delete rawImageSource;
 		delete demosaicSrcData;
 
 		abasc << "before deleting" << "\n";

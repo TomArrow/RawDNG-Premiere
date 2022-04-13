@@ -30,7 +30,6 @@
 
 
 
-
 //#include "rtengine.h"
 //#include "rawimagesource.h"
 #include "amaze_demosaic_RT.h"
@@ -41,6 +40,9 @@
 #include "median.h"
 #include "StopWatch.h"
 #include "array2D.h"
+#include <fstream>
+
+extern std::ofstream abasc;
 
 namespace rtengine{
 
@@ -49,10 +51,10 @@ void RawImageSource::amaze_demosaic_RT(int winx, int winy, int winw, int winh, c
 
     std::unique_ptr<StopWatch> stop;
 
-    if (measure) {
-        std::cout << "Demosaicing " << W << "x" << H << " image using AMaZE with " << chunkSize << " Tiles per Thread" << std::endl;
+    //if (measure) {
+        abasc << "Demosaicing " << W << "x" << H << " image using AMaZE with " << chunkSize << " Tiles per Thread" << std::endl;
         stop.reset(new StopWatch("amaze demosaic"));
-    }
+    //}
 
     double progress = 0.0;
 
@@ -62,6 +64,8 @@ void RawImageSource::amaze_demosaic_RT(int winx, int winy, int winw, int winh, c
     //}
 
     const unsigned int cfarray[2][2] = {{FC(0,0), FC(0,1)}, {FC(1,0), FC(1,1)}};
+    abasc << "Demosaic array received " << cfarray[0][0] << " "  << cfarray[0][1] << " "  << cfarray[1][0] << " "  << cfarray[1][1] << " " << std::endl;
+
     const int width = winw, height = winh;
     const float clip_pt = 1.0 / initialGain;
     const float clip_pt8 = 0.8 / initialGain;
