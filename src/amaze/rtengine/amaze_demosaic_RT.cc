@@ -41,8 +41,8 @@
 #include "StopWatch.h"
 #include "array2D.h"
 #include <fstream>
+#include "common.h"
 
-extern std::ofstream abasc;
 
 namespace rtengine{
 

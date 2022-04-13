@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\src\amaze\rtengine\sleef.h" />
     <ClInclude Include="..\..\src\amaze\rtengine\sleefsseavx.h" />
     <ClInclude Include="..\..\src\amaze\rtengine\StopWatch.h" />
+    <ClInclude Include="..\..\src\common.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Dialogs.h" />
     <ClInclude Include="..\..\src\RawDNG_Premiere_Import.h" />
     <ClInclude Include="..\..\src\RawDNG_UTF.h" />

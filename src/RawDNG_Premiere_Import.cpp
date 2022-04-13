@@ -66,6 +66,7 @@
 #include <future>
 #include <mutex>
 #include <iomanip>
+#include "common.h"
 
 typedef  unsigned long ulong;
 
@@ -99,8 +100,12 @@ using namespace std;
 
 static  int callCounter = 0;
 
+#ifdef DEBUGOUTPUT
 std::ofstream abasc;
-
+#else
+std::ofstream nothing;
+//#define abasc if(0) nothing
+#endif
 static bool inited = false;
 
 #define BUFFER_TIMEOUT 30.0

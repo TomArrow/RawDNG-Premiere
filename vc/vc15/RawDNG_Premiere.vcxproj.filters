@@ -136,6 +136,7 @@
     <ClInclude Include="..\..\src\amaze\rtengine\LUT.h">
       <Filter>amaze\rtengine</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\RawDNG_Premiere_Import.cpp" />
