@@ -129,6 +129,7 @@ static class CalculatingFrame {
 	std::chrono::system_clock::time_point startTime;
 	float* outputBuffer;
 	int outputBufferLength;
+	int rowBytes;
 
 	void doProcess() {
 
@@ -146,9 +147,9 @@ static class CalculatingFrame {
 		}
 
 		rawspeed::FileReader reader(path.c_str());
-		std::unique_ptr<const rawspeed::Buffer> map = NULL;
+		const rawspeed::Buffer* map = NULL;
 		try {
-			map = reader.readFile();
+			map = reader.readFile().release();
 		}
 		catch (rawspeed::IOException& e) {
 			abasc << "file read error gg " << path << "\n";
@@ -156,13 +157,11 @@ static class CalculatingFrame {
 			finishPromise.set_value(false);
 			return;
 		}
-		//rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
-		//rawspeed::Buffer* map = new rawspeed::f;
 
 		abasc << "before parse" << "\n";
 		abasc.flush();
 
-		rawspeed::RawParser parser(map.get());
+		rawspeed::RawParser parser(map);
 		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
 
 		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
@@ -171,6 +170,9 @@ static class CalculatingFrame {
 		decoder->decodeRaw();
 		decoder->decodeMetaData(metadata);
 		rawspeed::RawImage raw = decoder->mRaw;
+
+		delete metadata;
+		delete map;
 
 		int components_per_pixel = raw->getCpp();
 		rawspeed::RawImageType type = raw->getDataType();
@@ -191,34 +193,18 @@ static class CalculatingFrame {
 
 		unsigned int bpp = raw->getBpp();
 
-		// make the Premiere buffer
-		//assert(sourceVideoRec->inNumFrameFormats == 1);
-		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
-		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
-
-		//imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
-
-		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
-		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
-
 		width = rawwidth;
 		height = rawheight;
 
-		//assert(frameFormat.inFrameWidth == width);
-		//assert(frameFormat.inFrameHeight == height);
+		if (rowBytes == 0) {
+			// Seemingly must be 64-byte aligned from observation. Ideally we pass this info in here straight from Premiere/AE
+			// But if we don't have the info (like when called from GetInfo function), we assume 64-byte alignment.
+			rowBytes = width * sizeof(float) * 4;
+			if (rowBytes % 64) {
+				rowBytes = (rowBytes / 64 + 1) * 64;
+			}
+		}
 
-		//prRect theRect;
-		//prSetRect(&theRect, 0, 0, width, height);
-
-		//RowbyteType rowBytes = 0;
-		//char* buf = NULL;
-
-		//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
-		//ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
-		//ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
-
-		//memset(buf, 255, 4096*1000);
-		//float* bufFloat = reinterpret_cast<float*>(buf);
 		uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
 
 		double maxValue = pow(2.0, 16.0) - 1;
@@ -234,9 +220,6 @@ static class CalculatingFrame {
 
 
 		array2D<float>* demosaicSrcData = new array2D<float>(width, height, 0U);
-		//array2D<float>* red = new array2D<float>(width, height, 0U);
-		//array2D<float>* green = new array2D<float>(width, height, 0U);
-		//<float>* blue = new array2D<float>(width, height, 0U);
 		red = new array2D<float>(width, height, 0U);
 		green = new array2D<float>(width, height, 0U);
 		blue = new array2D<float>(width, height, 0U);
@@ -250,7 +233,6 @@ static class CalculatingFrame {
 		}
 
 
-
 		delete decoder;
 
 		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
@@ -262,15 +244,16 @@ static class CalculatingFrame {
 		abasc << "before deleting" << "\n";
 		abasc.flush();
 
-		outputBufferLength = width * height*4;
+		outputBufferLength = height*rowBytes/4;
 		outputBuffer = new float[outputBufferLength];
 
+		int rowFloats = rowBytes / 4;
 		for (size_t y = 0; y < height; y++) {
 			for (size_t x = 0; x < width; x++) {
-				outputBuffer[y * width * 4 + x * 4] = (float)( (*blue)[y][x] / maxValue);
-				outputBuffer[y * width * 4 + x * 4 + 1] = (float)((*green)[y][x] / maxValue);
-				outputBuffer[y * width * 4 + x * 4 + 2] = (float)((*red)[y][x] / maxValue);
-				outputBuffer[y * width * 4 + x * 4 + 3] = 1.0f;
+				outputBuffer[y * rowFloats + x * 4] = (float)( (*blue)[y][x] / maxValue);
+				outputBuffer[y * rowFloats + x * 4 + 1] = (float)((*green)[y][x] / maxValue);
+				outputBuffer[y * rowFloats + x * 4 + 2] = (float)((*red)[y][x] / maxValue);
+				outputBuffer[y * rowFloats + x * 4 + 3] = 1.0f;
 			}
 		}
 
@@ -291,12 +274,15 @@ static class CalculatingFrame {
 		}
 	}
 public:
-	CalculatingFrame(std::string pathA) {
+	CalculatingFrame(std::string pathA,int rowBytesA) {
 		path = pathA;
 		success = false;
 		finished = false;
 		width = height = 0;
 		worker = new std::thread(&CalculatingFrame::doProcess, this);
+
+		rowBytes = rowBytesA ? rowBytesA : 0;
+
 		startTime = std::chrono::system_clock::now();
 	}
 	void refreshStartTime() { // Call to avoid timeout while the image is still active.
@@ -314,10 +300,29 @@ public:
 		waitForFinish();
 		return height;
 	}
-	void getFrame(float* outputBufferOut) {
+	void getFrame(float* outputBufferOut,int rowBytesA) {
 		waitForFinish();
 		if (success) {
-			memcpy(outputBufferOut,outputBuffer,outputBufferLength*sizeof(float));
+			if (rowBytes == rowBytesA) {
+				memcpy(outputBufferOut, outputBuffer, outputBufferLength * sizeof(float));
+			}
+			else {
+				abasc << "converting from " << rowBytes << " to " << rowBytesA << " rowbytes" << "\n";
+				abasc.flush();
+				// This shouldn't happen, but just in case it does, we convert to a different
+				// rowbytes (stride) amount.
+				int rowFloats = rowBytes / 4;
+				int rowFloatsA = rowBytesA / 4;
+				for (size_t y = 0; y < height; y++) {
+					for (size_t x = 0; x < width; x++) {
+						outputBufferOut[y * rowFloatsA + x * 4] = outputBuffer[y * rowFloats + x * 4];
+						outputBufferOut[y * rowFloatsA + x * 4 + 1] = outputBuffer[y * rowFloats + x * 4 + 1];
+						outputBufferOut[y * rowFloatsA + x * 4 + 2] = outputBuffer[y * rowFloats + x * 4 + 2];
+						outputBufferOut[y * rowFloatsA + x * 4 + 3] = outputBuffer[y * rowFloats + x * 4 + 3];
+					}
+				}
+			}
+			
 			/*for (size_t y = 0; y < height; y++) {
 				for (size_t x = 0; x < width; x++) {
 					outputBuffer[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
@@ -331,6 +336,7 @@ public:
 	~CalculatingFrame() {
 		abasc << "before delete worker " << success << "\n";
 		abasc.flush();
+		waitForFinish();
 		worker->join();
 		delete worker;
 		if (success) {
@@ -425,7 +431,7 @@ SDKInit(
 	importInfo->dontCache			= kPrFalse;		// Don't let Premiere cache these files
 	importInfo->hasSetup			= kPrTrue;		// Set to kPrTrue if you have a setup dialog
 	importInfo->setupOnDblClk		= kPrFalse;		// If user dbl-clicks file you imported, pop your setup dialog
-	importInfo->keepLoaded			= kPrFalse;		// If you MUST stay loaded use, otherwise don't: play nice
+	importInfo->keepLoaded			= kPrTrue;		// If you MUST stay loaded use, otherwise don't: play nice
 	importInfo->priority			= 10;			// Original ProEXR plug-in had a priority of 0
 	importInfo->canTrim				= kPrFalse;
 	importInfo->canCalcSizes		= kPrFalse;
@@ -990,9 +996,9 @@ void ReadFileWrap(HANDLE fileRef, void* fileBuffer, unsigned long fileSize, std:
 }
 
 
-static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustDelete) {
+static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustDelete,int rowBytes = 0) {
 
-	CalculatingFrame* calcFrame;
+	CalculatingFrame* calcFrame = 0;
 	// Caching stuff
 	abasc << "test!24y354yu534th\n";
 	abasc.flush();
@@ -1045,7 +1051,8 @@ static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustD
 					assumedAheadFilename << base << std::setfill('0') << std::setw(numberLength) << (numInt + i) << extension;
 					abasc << "Attempting to buffer " << assumedAheadFilename.str() << "\n";
 					abasc.flush();
-					bufferCollectionHere->emplace(numInt + i, assumedAheadFilename.str());
+					//bufferCollectionHere->emplace(numInt + i, assumedAheadFilename.str(), rowBytes);
+					bufferCollectionHere->emplace(std::piecewise_construct, std::make_tuple(numInt + i), std::make_tuple(assumedAheadFilename.str(), rowBytes));
 				}
 				else {
 					findResult->second.refreshStartTime();
@@ -1088,13 +1095,16 @@ static CalculatingFrame* getCalculatingFrame(std::string pathString, bool* mustD
 		else {
 			*mustDelete = true;// Since we are not dealing with a sequence (or can't detect its logic), we won't be doing any caching or persisting across multiple frames, so the CalculatingFrame must be deleted after calculation in this function call.
 
-			calcFrame = new CalculatingFrame(pathString);
+			calcFrame = new CalculatingFrame(pathString, rowBytes);
 		}
 	}
+	else {
+		*mustDelete = true;// Since we are not dealing with a sequence (or can't detect its logic), we won't be doing any caching or persisting across multiple frames, so the CalculatingFrame must be deleted after calculation in this function call.
 
-	//abasc << "Buffer collection lenght after: " << ldataP->bufferCollection->size() << "\n";
-	//abasc << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
-	//abasc.flush();
+		calcFrame = new CalculatingFrame(pathString, rowBytes);
+	}
+
+	
 	return calcFrame;
 }
 
@@ -1145,15 +1155,6 @@ SDKGetInfo8(
 	{
 		unsigned long fileSize = GetFileSize(fileAccessInfo8->fileref, NULL);
 
-		//uint8_t* fileBuffer = new uint8_t[fileSize];
-
-
-		//ReadFileWrap(fileAccessInfo8->fileref, (void*)fileBuffer, fileSize, &abasc);
-		//SetFilePointer(fileAccessInfo8->fileref, 0, NULL, FILE_BEGIN);
-		//abasc4 << "Call counter: " << (callCounter++);
-
-		//unsigned long fileSize = GetFileSize(fileAccessInfo8->fileref, NULL);
-
 		TCHAR filename[MAX_PATH + 1];
 		ulong pathLength = GetFinalPathNameByHandleA(fileAccessInfo8->fileref, filename, MAX_PATH + 1, 0);
 
@@ -1163,27 +1164,9 @@ SDKGetInfo8(
 		bool mustDelete = false;
 		calcFrame = getCalculatingFrame(pathString, &mustDelete);
 
-				
-		//rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer, (uint32_t)fileSize);
-
-
-		
-		//rawspeed::RawParser parser(map);
-		//rawspeed::RawDecoder* decoder = parser.getDecoder().release();
-
-		//rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
-
-		//decoder->decodeRaw();
-		//decoder->decodeMetaData(metadata);
-		//rawspeed::RawImage raw = decoder->mRaw;
 
 		int rawwidth = calcFrame->getWidth();//raw->dim.x;
 		int rawheight = calcFrame->getHeight();//raw->dim.y;
-		//const csSDK_int32 width = rawwidth;
-		//const csSDK_int32 height = rawheight;
-		//delete map;
-		//delete decoder;
-		//delete[] fileBuffer;
 
 		if (mustDelete) {
 			delete calcFrame;
@@ -1353,133 +1336,7 @@ SDKSetTimeInfo(
 //regex pathregex(R"([\\\/][^\\\/]*?\..*?$)",
 //	regex_constants::icase | regex_constants::optimize | regex_constants::ECMAScript);
 
-/*
-map<string, map<string, array2D<float>>> cache;
 
-static void renderFile(string folder, string fullPath) {
-
-	//open file
-	std::ifstream infile(fullPath);
-
-	//get length of file
-	infile.seekg(0, std::ios::end);
-	size_t fileSize = infile.tellg();
-	infile.seekg(0, std::ios::beg);
-
-	char* fileBuffer = new char[fileSize];
-
-	//read file
-	infile.read(fileBuffer, fileSize);
-
-	rawspeed::Buffer* map = new rawspeed::Buffer((uint8_t*)fileBuffer, (uint32_t)fileSize);
-
-
-
-	rawspeed::RawParser parser(map);
-	rawspeed::RawDecoder* decoder = parser.getDecoder().release();
-
-	rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
-
-	//decoder->uncorrectedRawValues = true;
-	decoder->decodeRaw();
-	decoder->decodeMetaData(metadata);
-	rawspeed::RawImage raw = decoder->mRaw;
-
-	int components_per_pixel = raw->getCpp();
-	rawspeed::RawImageType type = raw->getDataType();
-	bool is_cfa = raw->isCFA;
-
-	int dcraw_filter = 0;
-	if (true == is_cfa) {
-		rawspeed::ColorFilterArray cfa = raw->cfa;
-		dcraw_filter = cfa.getDcrawFilter();
-		//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
-	}
-
-	unsigned char* data = raw->getData(0, 0);
-	int rawwidth = raw->dim.x;
-	int rawheight = raw->dim.y;
-	int pitch_in_bytes = raw->pitch;
-
-	unsigned int bpp = raw->getBpp();
-
-	// make the Premiere buffer
-	assert(sourceVideoRec->inNumFrameFormats == 1);
-	//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
-	assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
-
-	//imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
-
-	//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
-	//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
-
-	const int width = rawwidth;
-	const int height = rawheight;
-
-	assert(frameFormat.inFrameWidth == width);
-	assert(frameFormat.inFrameHeight == height);
-
-	prRect theRect;
-	prSetRect(&theRect, 0, 0, width, height);
-
-	RowbyteType rowBytes = 0;
-	char* buf = NULL;
-
-	//ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
-	//ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
-	//ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
-
-	//memset(buf, 255, 4096*1000);
-	float* bufFloat = reinterpret_cast<float*>(buf);
-	uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
-
-	double maxValue = pow(2.0, 16.0) - 1;
-	double tmp;
-
-
-
-	rtengine::RawImage* ri = new rtengine::RawImage();
-	ri->filters = dcraw_filter;
-	rtengine::RawImageSource* rawImageSource = new rtengine::RawImageSource();
-	rawImageSource->ri = ri;
-
-
-	array2D<float>* demosaicSrcData = new array2D<float>(width, height, 0U);
-	array2D<float>* red = new array2D<float>(width, height, 0U);
-	array2D<float>* green = new array2D<float>(width, height, 0U);
-	array2D<float>* blue = new array2D<float>(width, height, 0U);
-
-
-	for (size_t y = 0; y < height; y++) {
-		for (size_t x = 0; x < width; x++) {
-			tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
-			(*demosaicSrcData)[y][x] = tmp;
-		}
-	}
-
-
-	rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
-
-	delete demosaicSrcData;
-
-
-	for (size_t y = 0; y < height; y++) {
-		for (size_t x = 0; x < width; x++) {
-			bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
-			bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
-			bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
-			bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
-		}
-	}
-
-	delete red, green, blue;
-	delete rawImageSource;
-	delete ri;
-	delete map;
-	delete decoder;
-	delete[] fileBuffer;
-}
-*/
 
 
 
@@ -1511,27 +1368,37 @@ SDKGetSourceVideo(
 
 		std::string pathString = filename;
 
-		CalculatingFrame* calcFrame;
-		bool mustDelete = false;
-
-		
-		calcFrame = getCalculatingFrame(pathString,&mustDelete);
-
-		//CalculatingFrame calcFrame(pathString);
-
-		abasc << "before buffer making" << "\n";
-		abasc.flush();
 
 		// make the Premiere buffer
 		assert(sourceVideoRec->inNumFrameFormats == 1);
-		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
 		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
 
 		imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
 
-		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
-		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
 
+		prRect theRect;
+		prSetRect(&theRect, 0, 0, frameFormat.inFrameWidth, frameFormat.inFrameHeight);
+
+		RowbyteType rowBytes = 0;
+		char* buf = NULL;
+
+		abasc << "before getpixels" << "\n";
+		abasc.flush();
+
+
+		abasc << "before buffer making" << "\n";
+		abasc.flush();
+		ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
+		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
+		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
+
+
+		CalculatingFrame* calcFrame;
+		bool mustDelete = false;
+
+		
+		calcFrame = getCalculatingFrame(pathString,&mustDelete, rowBytes);
+		
 		abasc << "before get dimensions" << "\n";
 		abasc.flush();
 
@@ -1547,22 +1414,16 @@ SDKGetSourceVideo(
 		assert(frameFormat.inFrameWidth == width);
 		assert(frameFormat.inFrameHeight == height);
 
-		prRect theRect;
-		prSetRect(&theRect, 0, 0, width, height);
-
-		RowbyteType rowBytes = 0;
-		char* buf = NULL;
-
-		abasc << "before getpixels" << "\n";
-		abasc.flush();
-
-		ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
-		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
-		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
+		
 
 		float* bufFloat = reinterpret_cast<float*>(buf);
 
-		calcFrame->getFrame(bufFloat);
+		calcFrame->getFrame(bufFloat,rowBytes);
+
+
+		abasc << "row bytes: " << rowBytes << " width " << width  << "\n";
+		abasc << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
+		abasc.flush();
 
 		if (mustDelete) {
 			delete calcFrame;
@@ -1591,236 +1452,7 @@ SDKGetSourceVideo(
 	return result;
 }
 
-// Old version without MT
-/*
-static prMALError 
-SDKGetSourceVideo(
-	imStdParms			*stdparms, 
-	imFileRef			fileRef, 
-	imSourceVideoRec	*sourceVideoRec)
-{
-	prMALError		result		= malNoError;
 
-	// Get the privateData handle you stored in imGetInfo
-	ImporterLocalRec8H ldataH = reinterpret_cast<ImporterLocalRec8H>(sourceVideoRec->inPrivateData);
-	ImporterLocalRec8Ptr ldataP = *ldataH;
-	ImporterPrefs *prefs = reinterpret_cast<ImporterPrefs *>(sourceVideoRec->prefs);
-	
-
-	PPixHand temp_ppix = NULL;
-
-	std::ofstream abasc;
-	abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-	abasc << "before frame filling" << "\n";
-	abasc.close();
-
-	try
-	{
-
-		// read the file
-		unsigned long fileSize = GetFileSize(fileRef,NULL);
-
-		TCHAR filename[MAX_PATH + 1];
-		ulong pathLength = GetFinalPathNameByHandleA(fileRef, filename, MAX_PATH + 1,0);
-
-		string path =  string(filename);
-		// Path looks like this: \\?\D:\path\path2\filename_000071.dng
-
-		uint8_t *fileBuffer = new uint8_t[fileSize];
-
-		std::ofstream abasc2;
-		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc2 << "before frame filling 2 " << fileSize << "\n";
-		abasc2 << "abc" << fileBuffer << "\n";
-		abasc2 << "path" << path << "\n";
-		abasc2 << "Call counter: " << (callCounter++) << "\n";
-		abasc2 << "Imported ID: " << (ldataP->importerID) << "\n";
-		abasc2 << "Call counter private data: " << ((ldataP->callCounter)++) << "\n";
-
-
-		
-			//regex_constants::icase | regex_constants::optimize | regex_constants::extended);
-		if (regex_search(path	, pathregex)) {
-			abasc2 << "regex found!";
-			auto words_begin =
-				std::sregex_iterator(path.begin(), path.end(), pathregex);
-			auto words_end = std::sregex_iterator();
-			for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-				std::smatch match = *i;
-				std::string match_str = match.str();
-				abasc2 << match_str;
-			}
-		}
-
-		abasc2.close();
-
-
-
-
-		std::ofstream abasc4;
-		abasc4.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		ReadFileWrap(fileRef, (void*)fileBuffer, fileSize, &abasc4);
-
-
-		abasc4.close();
-
-
-		rawspeed::Buffer* map = new rawspeed::Buffer(fileBuffer,(uint32_t)fileSize);
-		
-
-
-		rawspeed::RawParser parser(map);
-		rawspeed::RawDecoder* decoder = parser.getDecoder().release();
-
-		rawspeed::CameraMetaData* metadata = new rawspeed::CameraMetaData();
-
-		//decoder->uncorrectedRawValues = true;
-		decoder->decodeRaw();
-		decoder->decodeMetaData(metadata);
-		rawspeed::RawImage raw = decoder->mRaw;
-
-		int components_per_pixel = raw->getCpp();
-		rawspeed::RawImageType type = raw->getDataType();
-		bool is_cfa = raw->isCFA;
-
-		int dcraw_filter = 0;
-		if (true == is_cfa) {
-			rawspeed::ColorFilterArray cfa = raw->cfa;
-			dcraw_filter = cfa.getDcrawFilter();
-			//rawspeed::CFAColor c = cfa.getColorAt(0, 0);
-		}
-		
-		unsigned char* data = raw->getData(0, 0);
-		int rawwidth = raw->dim.x;
-		int rawheight = raw->dim.y;
-		int pitch_in_bytes = raw->pitch;
-
-		unsigned int bpp = raw->getBpp();
-
-		// make the Premiere buffer
-		assert(sourceVideoRec->inNumFrameFormats == 1);
-		//assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f_Linear);
-		assert(sourceVideoRec->inFrameFormats[0].inPixelFormat == PrPixelFormat_BGRA_4444_32f);
-		
-		imFrameFormat frameFormat = sourceVideoRec->inFrameFormats[0];
-		
-		//frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f_Linear;
-		frameFormat.inPixelFormat = PrPixelFormat_BGRA_4444_32f;
-				
-		const int width = rawwidth;
-		const int height = rawheight;
-		
-		assert(frameFormat.inFrameWidth == width);
-		assert(frameFormat.inFrameHeight == height);
-		
-		prRect theRect;
-		prSetRect(&theRect, 0, 0, width, height);
-		
-		RowbyteType rowBytes = 0;
-		char *buf = NULL;
-		
-		ldataP->PPixCreatorSuite->CreatePPix(sourceVideoRec->outFrame, PrPPixBufferAccess_ReadWrite, frameFormat.inPixelFormat, &theRect);
-		ldataP->PPixSuite->GetPixels(*sourceVideoRec->outFrame, PrPPixBufferAccess_WriteOnly, &buf);
-		ldataP->PPixSuite->GetRowBytes(*sourceVideoRec->outFrame, &rowBytes);
-		
-		//memset(buf, 255, 4096*1000);
-		float* bufFloat = reinterpret_cast<float*>(buf);
-		uint16_t* dataAs16bit = reinterpret_cast<uint16_t*>(data);
-
-		double maxValue = pow(2.0, 16.0) - 1;
-		double tmp;
-		
-
-		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc2 << "before frame filling 3 " << "\n";
-		abasc2 << "abc" << fileBuffer << "\n";
-		abasc2.close();
-
-		rtengine::RawImage* ri = new rtengine::RawImage();
-		ri->filters = dcraw_filter;
-		rtengine::RawImageSource* rawImageSource = new rtengine::RawImageSource();
-		rawImageSource->ri = ri;
-
-
-		array2D<float>* demosaicSrcData = new array2D<float>(width, height,0U);
-		array2D<float>* red = new array2D<float>(width, height,0U);
-		array2D<float>* green = new array2D<float>(width, height,0U);
-		array2D<float>* blue = new array2D<float>(width, height,0U);
-
-		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc2 << "before frame filling 4 " << "\n";
-		abasc2 << "abc" << fileBuffer << "\n";
-		abasc2.close();
-
-		for (size_t y = 0; y < height; y++) {
-			for (size_t x = 0; x < width; x++) {
-				tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
-				(*demosaicSrcData)[y][x] = tmp;
-			}
-		}
-
-
-		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
-
-		delete demosaicSrcData;
-
-		abasc2.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc2 << "before frame filling 5 "  << "\n";
-		abasc2 << "abc" << fileBuffer << "\n";
-		abasc2.close();
-
-		for (size_t y = 0; y < height; y++) {
-			for (size_t x = 0; x < width; x++) {
-				bufFloat[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
-				bufFloat[y * width * 4 + x * 4 + 3] = 1.0f;
-			}
-		}
-
-		delete red, green, blue;
-		delete rawImageSource;
-		delete ri;
-
-		
-
-
-		std::ofstream abasc3;
-		abasc3.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc3 << "frame filling blahblah" << "\n";
-		abasc3 << "width" << rawwidth << "\n";
-		abasc3 << "height" << rawheight << "\n";
-		abasc3.close();
-		// read your file a fill in the pixel buffer!
-
-		delete map;
-		delete decoder;
-		delete[] fileBuffer;
-	}
-	catch (const std::exception& e) {
-		std::ofstream abasc;
-		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc << "ERROR" << e.what() << "\n";
-		abasc.close();
-	}
-	catch(...)
-	{
-		std::ofstream abasc;
-		abasc.open("G:/tmptest/blah.txt", std::ios::out | std::ios::app);
-		abasc << "ERROR GENERIC" <<  "\n";
-		abasc.close();
-		result = malUnknownError;
-	}
-	
-	
-	if(temp_ppix)
-		ldataP->PPixSuite->Dispose(temp_ppix);
-	
-
-	return result;
-}
-
-//*/
 
 PREMPLUGENTRY DllExport xImportEntry (
 	csSDK_int32		selector, 
