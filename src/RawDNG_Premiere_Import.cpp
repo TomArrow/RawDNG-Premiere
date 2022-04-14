@@ -246,11 +246,16 @@ static class CalculatingFrame {
 		green = new array2D<float>(width, height, 0U);
 		blue = new array2D<float>(width, height, 0U);
 
-
-		for (size_t y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp for
+#endif
+		for (int y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp simd
+#endif
 			for (size_t x = 0; x < width; x++) {
-				tmp = dataAs16bit[y * pitch_in_bytes / 2 + x];// maxValue;
-				(*demosaicSrcData)[y][x] = tmp;
+				//tmp = ;// maxValue;
+				(*demosaicSrcData)[y][x] = dataAs16bit[y * pitch_in_bytes / 2 + x];
 			}
 		}
 
@@ -270,7 +275,13 @@ static class CalculatingFrame {
 		outputBuffer = new float[outputBufferLength];
 
 		int rowFloats = rowBytes / 4;
-		for (size_t y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp for
+#endif
+		for (int y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp simd
+#endif
 			for (size_t x = 0; x < width; x++) {
 				outputBuffer[y * rowFloats + x * 4] = (float)( (*blue)[y][x] / maxValue);
 				outputBuffer[y * rowFloats + x * 4 + 1] = (float)((*green)[y][x] / maxValue);
@@ -339,7 +350,13 @@ public:
 				// rowbytes (stride) amount.
 				int rowFloats = rowBytes / 4;
 				int rowFloatsA = rowBytesA / 4;
-				for (size_t y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp for
+#endif
+				for (int y = 0; y < height; y++) {
+#ifdef _OPENMP
+	#pragma omp simd
+#endif
 					for (size_t x = 0; x < width; x++) {
 						outputBufferOut[y * rowFloatsA + x * 4] = outputBuffer[y * rowFloats + x * 4];
 						outputBufferOut[y * rowFloatsA + x * 4 + 1] = outputBuffer[y * rowFloats + x * 4 + 1];

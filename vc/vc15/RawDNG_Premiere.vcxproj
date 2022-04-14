@@ -19,7 +19,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -103,8 +104,7 @@
       <PreprocessorDefinitions>__attribute__(X);ISOLATION_AWARE_ENABLED=1;NDEBUG;WIN32;_WIN64;_WINDOWS;PRWIN_ENV;MSWindows;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
-      <OpenMPSupport>
-      </OpenMPSupport>
+      <OpenMPSupport>true</OpenMPSupport>
       <AdditionalOptions>-openmp:experimental</AdditionalOptions>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -112,7 +112,7 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)RawDNG.prm</OutputFile>
