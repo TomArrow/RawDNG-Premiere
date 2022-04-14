@@ -279,14 +279,15 @@ static class CalculatingFrame {
 	#pragma omp for
 #endif
 		for (int y = 0; y < height; y++) {
+			float* outputBufferHere = outputBuffer + y * rowFloats;
 #ifdef _OPENMP
 	#pragma omp simd
 #endif
-			for (size_t x = 0; x < width; x++) {
-				outputBuffer[y * rowFloats + x * 4] = (float)( (*blue)[y][x] / maxValue);
-				outputBuffer[y * rowFloats + x * 4 + 1] = (float)((*green)[y][x] / maxValue);
-				outputBuffer[y * rowFloats + x * 4 + 2] = (float)((*red)[y][x] / maxValue);
-				outputBuffer[y * rowFloats + x * 4 + 3] = 1.0f;
+			for (int x = 0; x < width; x++) {
+				outputBufferHere[x * 4] = (float)( (*blue)[y][x] / maxValue);
+				outputBufferHere[x * 4 + 1] = (float)((*green)[y][x] / maxValue);
+				outputBufferHere[x * 4 + 2] = (float)((*red)[y][x] / maxValue);
+				outputBufferHere[x * 4 + 3] = 1.0f;
 			}
 		}
 
@@ -354,14 +355,16 @@ public:
 	#pragma omp for
 #endif
 				for (int y = 0; y < height; y++) {
+					float* outputBufferOutHere = outputBufferOut + y * rowFloatsA;
+					float* outputBufferHere = outputBuffer + y * rowFloats;
 #ifdef _OPENMP
-	#pragma omp simd
+#pragma omp simd
 #endif
-					for (size_t x = 0; x < width; x++) {
-						outputBufferOut[y * rowFloatsA + x * 4] = outputBuffer[y * rowFloats + x * 4];
-						outputBufferOut[y * rowFloatsA + x * 4 + 1] = outputBuffer[y * rowFloats + x * 4 + 1];
-						outputBufferOut[y * rowFloatsA + x * 4 + 2] = outputBuffer[y * rowFloats + x * 4 + 2];
-						outputBufferOut[y * rowFloatsA + x * 4 + 3] = outputBuffer[y * rowFloats + x * 4 + 3];
+					for (int x = 0; x < width; x++) {
+						outputBufferOutHere[x * 4] = outputBufferHere[x * 4];
+						outputBufferOutHere[x * 4 + 1] = outputBufferHere[x * 4 + 1];
+						outputBufferOutHere[x * 4 + 2] = outputBufferHere[x * 4 + 2];
+						outputBufferOutHere[x * 4 + 3] = outputBufferHere[x * 4 + 3];
 					}
 				}
 			}
