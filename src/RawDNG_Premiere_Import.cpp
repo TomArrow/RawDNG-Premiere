@@ -115,9 +115,6 @@ regex pathregex(R"((.*?)(\d+)([^\d]*?\.[^.]*?$))", // prefix, number and suffix 
 
 static class CalculatingFrame {
 	const double maxValue = pow(2.0, 16.0) - 1;
-	array2D<float>* red;
-	array2D<float>* green;
-	array2D<float>* blue;
 	int width;
 	int height;
 	std::thread* worker;
@@ -132,6 +129,31 @@ static class CalculatingFrame {
 	int rowBytes;
 
 	void doProcess() {
+
+#ifdef DEBUGBLACK
+		width = 3300;
+		height = 3000; 
+		rowBytes = width * sizeof(float) * 4;
+		outputBufferLength = height * rowBytes / 4;
+		outputBuffer = new float[outputBufferLength];
+
+		int rowFloats = rowBytes / 4;
+		for (size_t y = 0; y < height; y++) {
+			for (size_t x = 0; x < width; x++) {
+				outputBuffer[y * rowFloats + x * 4] = (float)y/(float)height + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				outputBuffer[y * rowFloats + x * 4 + 1] = (float)y / (float)height + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				outputBuffer[y * rowFloats + x * 4 + 2] = (float)y / (float)height + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				outputBuffer[y * rowFloats + x * 4 + 3] = 1.0f;
+			}
+		}
+
+		finishPromise.set_value(true);
+
+#else
+
+		array2D<float>* red;
+		array2D<float>* green;
+		array2D<float>* blue;
 
 		abasc << "before read file" << "\n";
 		abasc.flush();
@@ -232,13 +254,13 @@ static class CalculatingFrame {
 			}
 		}
 
-
 		delete decoder;
 
 		rawImageSource->amaze_demosaic_RT(0, 0, width, height, *demosaicSrcData, *red, *green, *blue);
 
 		delete ri;
 		delete rawImageSource;
+		demosaicSrcData->free();
 		delete demosaicSrcData;
 
 		abasc << "before deleting" << "\n";
@@ -257,11 +279,15 @@ static class CalculatingFrame {
 			}
 		}
 
+		red->free();
+		green->free();
+		blue->free();
 		delete red;
 		delete green;
 		delete blue;
 
 		finishPromise.set_value(true);
+#endif
 	}
 
 	void waitForFinish() {
@@ -322,15 +348,6 @@ public:
 					}
 				}
 			}
-			
-			/*for (size_t y = 0; y < height; y++) {
-				for (size_t x = 0; x < width; x++) {
-					outputBuffer[y * width * 4 + x * 4] = (*blue)[y][x] / maxValue;
-					outputBuffer[y * width * 4 + x * 4 + 1] = (*green)[y][x] / maxValue;
-					outputBuffer[y * width * 4 + x * 4 + 2] = (*red)[y][x] / maxValue;
-					outputBuffer[y * width * 4 + x * 4 + 3] = 1.0f;
-				}
-			}*/
 		}
 	}
 	~CalculatingFrame() {

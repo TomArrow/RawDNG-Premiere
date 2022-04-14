@@ -1,5 +1,6 @@
 #pragma once
 
+//#define DEBUGBLACK
 
 #define DEBUGOUTPUT
 
