@@ -2,7 +2,7 @@
 
 //#define DEBUGBLACK
 
-#define DEBUGOUTPUT
+//#define DEBUGOUTPUT
 
 #ifdef DEBUGOUTPUT
 extern std::ofstream abasc;
